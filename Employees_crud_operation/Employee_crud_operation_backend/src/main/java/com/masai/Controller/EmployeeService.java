@@ -55,29 +55,23 @@ public class EmployeeService {
 		
 		for(Employee e : employees) {
 			if(e.getEmpId().equals(empId)) {
-				System.out.println(true);
 				return e;
 			}
-			else {
-				System.out.println(empId);
-				System.out.println("-> " + e.getEmpId());
-				System.out.println(false);
-			}
 		}
-		return employees.get(0);
+		throw new IllegalArgumentException("No employee present");
 	}
 	
 	@PutMapping(value = "/employees/{empId}")
 	public String updateEmployeeValueByEmpId(@PathVariable Integer empId, @RequestBody Employee employee) {
 		for(Employee e : employees) {
-			if(e.getEmpId() == empId) {
+			if(e.getEmpId().equals(empId)) {
 				e.setDepartment(employee.getDepartment());
 				e.setEmpName(employee.getEmpName());
 				e.setSalary(employee.getSalary());
-				break;
+				return "Employee data updated seccessfully" + employee;
 			}
 		}
-		return "Employee data updated seccessfully" + employee;
+		throw new IllegalArgumentException("No employee present");
 	}
 	
 	@PostMapping("/employees")
@@ -92,12 +86,12 @@ public class EmployeeService {
 	@DeleteMapping(value = "/employees/{empId}")
 	public String deleteEmployeeHandler(@PathVariable Integer empId) {
 		for(Employee e : employees) {
-			if(e.getEmpId() == empId) {
+			if(e.getEmpId().equals(empId)) {
 				employees.remove(e);
-				break;
+				return "Employee Deleted Successfully";
 			}
 		}
-		return "Employee Deleted Successfully";
+		throw new RuntimeException("No employee present");
 		
 	}
 	
