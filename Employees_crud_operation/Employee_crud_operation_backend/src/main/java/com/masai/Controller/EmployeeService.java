@@ -1,11 +1,12 @@
 package com.masai.Controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,22 +32,74 @@ public class EmployeeService {
 		Employee emp8 = new Employee(1008, "Aman", 20000, "marketing");
 		Employee emp9 = new Employee(1009, "Amit", 32000, "Sales");
 		Employee emp10 = new Employee(1010, "Pankaj", 24000, "Sales");
-		employees = Arrays.asList(emp1, emp2, emp3, emp4, emp5, emp6, emp7, emp8, emp9, emp10);
-		
+		employees.add(emp1);
+		employees.add(emp2);
+		employees.add(emp3);
+		employees.add(emp4);
+		employees.add(emp5);
+		employees.add(emp6);
+		employees.add(emp7);
+		employees.add(emp8);
+		employees.add(emp9);
+		employees.add(emp10);
 	}
 	
 	
 	@GetMapping(value = "/employees")
-	public List<Employee> getAllEmployeeData(@PathVariable Integer empId){
+	public List<Employee> getAllEmployeeData(){
 		return employees;
 	}
 	
-	@PutMapping(value = "/employee{empId}")
-	public Employee updateEmployeeValueByEmpId(@PathVariable Integer empId, @RequestBody Employee employee) {
+	@GetMapping("/employees/{empId}")
+	public Employee getEmployeeByIdHandler(@PathVariable Integer empId) {
 		
-		return employee;
+		for(Employee e : employees) {
+			if(e.getEmpId().equals(empId)) {
+				System.out.println(true);
+				return e;
+			}
+			else {
+				System.out.println(empId);
+				System.out.println("-> " + e.getEmpId());
+				System.out.println(false);
+			}
+		}
+		return employees.get(0);
 	}
 	
+	@PutMapping(value = "/employees/{empId}")
+	public String updateEmployeeValueByEmpId(@PathVariable Integer empId, @RequestBody Employee employee) {
+		for(Employee e : employees) {
+			if(e.getEmpId() == empId) {
+				e.setDepartment(employee.getDepartment());
+				e.setEmpName(employee.getEmpName());
+				e.setSalary(employee.getSalary());
+				break;
+			}
+		}
+		return "Employee data updated seccessfully" + employee;
+	}
+	
+	@PostMapping("/employees")
+	public String saveEmployeeHandler(@RequestBody Employee employee) {
+		employees.add(employee);
+		return "Employee added succesfully " + employee;
+	}
+	
+	
+	
+	
+	@DeleteMapping(value = "/employees/{empId}")
+	public String deleteEmployeeHandler(@PathVariable Integer empId) {
+		for(Employee e : employees) {
+			if(e.getEmpId() == empId) {
+				employees.remove(e);
+				break;
+			}
+		}
+		return "Employee Deleted Successfully";
+		
+	}
 	
 	
 }

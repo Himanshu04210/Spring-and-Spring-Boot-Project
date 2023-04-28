@@ -1,26 +1,13 @@
 package com.masai.Model;
 
 public class Employee {
-	private int empId;
+	private Integer empId;
 	private String empName;
-	private int salary;
+	private Integer salary;
 	private String department;
 	
-	//Constructors
-	public Employee() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
-
-	@Override
-	public String toString() {
-		return "Employee [empId=" + empId + ", empName=" + empName + ", salary=" + salary + ", department=" + department
-				+ "]";
-	}
-
-
-	public Employee(int empId, String empName, int salary, String department) {
+	
+	public Employee(Integer empId, String empName, Integer salary, String department) {
 		super();
 		this.empId = empId;
 		this.empName = empName;
@@ -29,12 +16,18 @@ public class Employee {
 	}
 
 
-	public int getEmpId() {
+	public Employee() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+
+	public Integer getEmpId() {
 		return empId;
 	}
 
 
-	public void setEmpId(int empId) {
+	public void setEmpId(Integer empId) {
 		this.empId = empId;
 	}
 
@@ -49,12 +42,12 @@ public class Employee {
 	}
 
 
-	public int getSalary() {
+	public Integer getSalary() {
 		return salary;
 	}
 
 
-	public void setSalary(int salary) {
+	public void setSalary(Integer salary) {
 		this.salary = salary;
 	}
 
@@ -69,8 +62,14 @@ public class Employee {
 	}
 
 
-	//Getter and setter
-
+	@Override
+	public String toString() {
+		return "Employee [empId=" + empId + ", empName=" + empName + ", salary=" + salary + ", department=" + department
+				+ "]";
+	}
+	
+	
+	
 	
 	
 	
