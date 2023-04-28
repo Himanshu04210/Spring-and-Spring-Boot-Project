@@ -4,6 +4,7 @@ public class Employee {
 	private int empId;
 	private String empName;
 	private int salary;
+	private String department;
 	
 	//Constructors
 	public Employee() {
@@ -11,22 +12,26 @@ public class Employee {
 		// TODO Auto-generated constructor stub
 	}
 
-	
-	
-	public Employee(int empId, String empName, int salary) {
+
+	@Override
+	public String toString() {
+		return "Employee [empId=" + empId + ", empName=" + empName + ", salary=" + salary + ", department=" + department
+				+ "]";
+	}
+
+
+	public Employee(int empId, String empName, int salary, String department) {
 		super();
 		this.empId = empId;
 		this.empName = empName;
 		this.salary = salary;
+		this.department = department;
 	}
 
-
-	//Getter and setter
 
 	public int getEmpId() {
 		return empId;
 	}
-
 
 
 	public void setEmpId(int empId) {
@@ -34,11 +39,9 @@ public class Employee {
 	}
 
 
-
 	public String getEmpName() {
 		return empName;
 	}
-
 
 
 	public void setEmpName(String empName) {
@@ -46,25 +49,28 @@ public class Employee {
 	}
 
 
-
-	public int getDepartment() {
+	public int getSalary() {
 		return salary;
 	}
 
 
-
-	public void setDepartment(int salary) {
+	public void setSalary(int salary) {
 		this.salary = salary;
 	}
 
 
-
-	@Override
-	public String toString() {
-		return "[empId=" + empId + ", empName=" + empName + ", department=" + salary + "]";
+	public String getDepartment() {
+		return department;
 	}
-	
-	
+
+
+	public void setDepartment(String department) {
+		this.department = department;
+	}
+
+
+	//Getter and setter
+
 	
 	
 	
