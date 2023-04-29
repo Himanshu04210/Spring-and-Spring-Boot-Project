@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Crud Operation</title>
+    <link rel="stylesheet" href="/index.css">
+</head>
+
+<body>
+
+    <h1 id="heading">Employee Crud Operation</h1>
+
+    <div id="container">
+        <div>
+            <form action="" id="form">
+                <label for="">Employee Id</label>
+                <input type="number" class="input" id="empId" name="empId" placeholder="Enter empId here">
+                <label for="">Name</label>
+                <input type="text" id="name" class="input" placeholder="Enter name here">
+                <label for="">Salary</label>
+                <input type="number" id="salary" class="input" placeholder="Enter salary here">
+                <label for="">Department</label>
+                <input type="text" id="department"class="input" placeholder="Enter department here">
+                <input type="submit" value="submit" id="submit" class="input">
+                <input type="submit" value="update" id="update" class="input">
+            </form>
+        </div>
+        <div>
+            <input type="text" name="search" id="searchById">
+            <input type="submit" value="Search" id="Search">
+            <table id="table"  border 5>
+                <thead>
+                    <tr>
+                        <th>Employee_Id</th>
+                        <th>Name</th>
+                        <th>Salary</th>
+                        <th>Department</th>
+                        <th>Update</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+        
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+<script src="/index.js"></script>
+
+</html>

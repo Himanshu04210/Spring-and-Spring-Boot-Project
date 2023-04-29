@@ -1,0 +1,29 @@
+#table{
+    border-collapse: collapse;
+    border: 2px solid black;
+}
+tr:nth-child(even){
+    background-color: antiquewhite;
+} 
+
+.input{
+    display: block;
+    height: 13px;
+    width:375px;
+    margin-bottom:15px;
+}
+
+#submit, #update{
+    height: 20px;
+    width:385px;
+}
+
+#container{
+    display:flex;
+    justify-content: center;
+}
+
+#form{
+    display:flex;
+    flex-direction: column;
+}
