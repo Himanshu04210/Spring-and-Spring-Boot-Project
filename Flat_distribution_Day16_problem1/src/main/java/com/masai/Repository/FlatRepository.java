@@ -11,7 +11,8 @@ import com.masai.Entity.Flat;
 public interface FlatRepository extends JpaRepository<Flat, Integer>{
 	public List<Flat> findFlatByPriceLessThan(int price);
 
-	public List<Flat> findFlatByPriceLessThanEqual(int price);
+	public List<Flat> findByPriceLessThanEqual(int price);
+	
 
 	public List<Flat> findFlatByPriceGreaterThan(int price);
 

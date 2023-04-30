@@ -41,8 +41,10 @@ public class FlatServiceImple implements FlatService {
 
 	@Override
 	public List<Flat> findFlatByPriceLessThanEqualTo(int price) throws FlatException {
-		// TODO Auto-generated method stub
-		return null;
+		List<Flat> flats = flatRepository.findByPriceLessThanEqual(price);
+		if(flats.isEmpty()) throw new FlatException("No flat is present here");
+		
+		return flats;
 	}
 
 	@Override

@@ -44,6 +44,13 @@ public class FlatController {
 		return new ResponseEntity<>(flats, HttpStatus.FOUND);
 	}
 	
+	@GetMapping("/flatsLessThenEqualPrice/{price}")
+	public ResponseEntity<List<Flat>> findFlatByPriceLessThanEqual(@PathVariable("price") Integer price) {
+		
+		List<Flat> flats = flatService.findFlatByPriceLessThanEqualTo(price);
+		return new ResponseEntity<>(flats, HttpStatus.FOUND);
+	}
+	
 }
 
 
