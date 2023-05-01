@@ -1,6 +1,7 @@
 package com.masai.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class FlatServiceImple implements FlatService {
 	public Flat registerFlat(Flat flat) {
 		
 		Flat f = flatRepository.save(flat);
+		if(f == null) throw new FlatException();
 		return f;
 	}
 
@@ -57,6 +59,22 @@ public class FlatServiceImple implements FlatService {
 	public List<Flat> findFlatByPriceBetween(int s_price, int e_price) throws FlatException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public Flat updateFlat(Integer flatId, Flat flat) throws FlatException {
+		Optional<Flat> existingFlat = flatRepository.findById(flatId);
+		if(existingFlat.isEmpty()) throw new FlatException("Flat does not exit");
+		
+		existingFlat.get().setBuildingName(flat.getBuildingName());
+		existingFlat.get().setDate_of_manufacturing(flat.getDate_of_manufacturing());
+		existingFlat.get().setDescription(flat.getDescription());;
+		existingFlat.get().setFacing(flat.getFacing());
+		existingFlat.get().setNoOfRooms(flat.getNoOfRooms());
+		existingFlat.get().setPrice(flat.getPrice());
+		
+		flatRepository.save(existingFlat.get());
+		return existingFlat.get();
 	}
 
 }

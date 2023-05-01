@@ -19,4 +19,5 @@ public interface FlatService {
 	public List<Flat> findFlatByPriceGreaterThan(int price)throws FlatException;
 
 	public List<Flat> findFlatByPriceBetween(int s_price,int e_price)throws FlatException;
+	public Flat updateFlat(Integer flatId, Flat flat) throws FlatException;
 }

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,6 +50,12 @@ public class FlatController {
 		
 		List<Flat> flats = flatService.findFlatByPriceLessThanEqualTo(price);
 		return new ResponseEntity<>(flats, HttpStatus.FOUND);
+	}
+	
+	@PutMapping("/flats/{flatId}")
+	public ResponseEntity<Flat> updateFlat(@PathVariable("flatId") Integer flatId ,@RequestBody Flat flat) {
+		Flat updatedFlat = flatService.updateFlat(flatId, flat);
+		return new ResponseEntity<>(updatedFlat, HttpStatus.ACCEPTED);
 	}
 	
 }
