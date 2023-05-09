@@ -18,11 +18,8 @@ public class ProductController {
 	
 	@PostMapping("/product")
 	public ResponseEntity<Product> addNewProduct(@RequestBody Product product) throws ProductException{
-		
 		Product product2 = productService.addProduct(product);
-		
 		return new ResponseEntity<Product>(product2,HttpStatus.CREATED);
-	
 	}
 	
 }
