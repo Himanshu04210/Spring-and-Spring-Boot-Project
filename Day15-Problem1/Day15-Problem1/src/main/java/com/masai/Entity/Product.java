@@ -72,4 +72,3 @@ public class Product {
 	
 	
 }
-//id, name, description, price, and category.
