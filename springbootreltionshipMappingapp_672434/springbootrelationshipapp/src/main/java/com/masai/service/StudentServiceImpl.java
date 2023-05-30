@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.masai.exception.CourseException;
-import com.masai.exception.StudentException;
 import com.masai.model.Course;
 import com.masai.model.Student;
 import com.masai.repository.CourseDao;
@@ -51,10 +50,8 @@ public class StudentServiceImpl implements StudentService{
 	@Override
 	public List<Student> findStudentsByCname(String cname) throws CourseException {
 		
-		System.out.println("*****************");
 		
 		Set<Student> students= cDao.getStudentsByCname(cname);
-		System.out.println("==============="+students);
 		
 		if(students.size() > 0)
 		{
