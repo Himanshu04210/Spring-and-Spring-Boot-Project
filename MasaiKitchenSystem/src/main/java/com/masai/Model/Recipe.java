@@ -14,12 +14,12 @@ public class Recipe {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer recipeId;
-	@NotNull
-	@NotBlank
+	@NotNull(message = "title field should not be null")
+	@NotBlank(message = "title field should not be blank")
 	private String title;
 	private String description;
-	@NotNull
-	@NotBlank
+	@NotNull(message = "ingredients field should not be null")
+	@NotBlank(message = "title field should not be blank")
 	private String ingredients;
 	private String instrucations;
 	private String preparationTime;
