@@ -69,10 +69,7 @@ public class UserServiceImple implements UserService {
 			
 		}
 		
-		
 		sRepo.delete(validCustomerSession);
-		
-		
 		return "Logged Out !";
 		
 		
