@@ -36,11 +36,13 @@
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
+				<!-- Maven -->
 		<dependency>
 		    <groupId>mysql</groupId>
 		    <artifactId>mysql-connector-java</artifactId>
-		    <version>8.0.23</version>
+		    <version>8.0.27</version>
 		</dependency>
+
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
