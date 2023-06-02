@@ -21,7 +21,7 @@ public class User {
 	@NotBlank
 	private String username;
 	private String password;
-	@Email
+	@Email(message = "provide a proper email")
 	private String email;
 	private LocalDate registerDate = LocalDate.now();
 	
