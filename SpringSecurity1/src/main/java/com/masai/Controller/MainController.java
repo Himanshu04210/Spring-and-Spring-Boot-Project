@@ -17,7 +17,6 @@ public class MainController {
 	 return new ResponseEntity<String>("Welcome to Masai App without security",HttpStatus.ACCEPTED);
 
 	}
-		
 	
 	@GetMapping("/welcomeP")
 	public ResponseEntity<String> welcomeP(){
