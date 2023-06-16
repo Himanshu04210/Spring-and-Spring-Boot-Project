@@ -23,6 +23,9 @@ public class MainController {
 		
 			return new ResponseEntity<String>("Welcome to Masai App with Security",HttpStatus.ACCEPTED);
 	}
+	
+	
+	
 
 	@GetMapping("/admin")
 	public ResponseEntity<String> admin() {
