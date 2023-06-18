@@ -34,7 +34,7 @@ public class MainController {
 	}
 	
 	
-	@PostMapping("/customer")
+	@PostMapping("/customers")
 	public ResponseEntity<Customer> registerCustomer(@RequestBody Customer customer) {
 			customer.setPassword(passwordEncoder.encode(customer.getPassword()));
 			Customer savedCustomer = customerService.registerCustomer(customer);
@@ -42,14 +42,14 @@ public class MainController {
 			return new ResponseEntity<Customer>(savedCustomer, HttpStatus.CREATED);
 	}
 	
-	@GetMapping("/customer/{email}")
+	@GetMapping("/customers/{email}")
 	public ResponseEntity<Customer> getCustomerByEmail(@PathVariable("email") String email) {
 			Customer customer = customerService.getCustomerByEmail(email);
 			
 			return new ResponseEntity<Customer>(customer, HttpStatus.FOUND);
 	}
 	
-	@GetMapping("/customer")
+	@GetMapping("/customers")
 	public ResponseEntity<List<Customer>> getCustomerByEmail() {
 			List<Customer> customers = customerService.getAllCustomers();
 			
