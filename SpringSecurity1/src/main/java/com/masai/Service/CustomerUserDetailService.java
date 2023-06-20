@@ -36,7 +36,9 @@ public class CustomerUserDetailService implements UserDetailsService{
 		
 		//authorities.add(new SimpleGrantedAuthority(customer.getRoll));
 		
-		return new User(customer.getEmail(), customer.getPassword(), authorities);
+		//return new User(customer.getEmail(), customer.getPassword(), authorities);
+		
+		return new CustomerUserDetail(customer);
 	}
 
 }
