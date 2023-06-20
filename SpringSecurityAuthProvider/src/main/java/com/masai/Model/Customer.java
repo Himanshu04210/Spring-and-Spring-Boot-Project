@@ -21,9 +21,6 @@ public class Customer {
 	private String name;
 	
 	@Column(unique = true)
-	@NotNull
-	@NotBlank
-	@Email
 	private String email;
 	private String password;
 	

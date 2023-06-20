@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,20 +41,20 @@ public class CustomerController {
 	}
 	
 	
-	@GetMapping("/customers")
-	public ResponseEntity<?> getCustomerByEmail(@RequestParam("email") String email) {
+	@GetMapping("/customers/{email}")
+	public ResponseEntity<Customer> getCustomerByEmailHandler(@PathVariable("email") String email) {
 		Customer customer = customerService.getCustomerByEmail(email);
 		
-		return new ResponseEntity<>(customer, HttpStatus.CREATED);
+		return new ResponseEntity<>(customer, HttpStatus.FOUND);
 		
 	}
 	
 	
 	@GetMapping("/customers")
-	public ResponseEntity<List<?>> getCustomerByEmail() {
+	public ResponseEntity<List<Customer>> getCustomerByEmail() {
 		List<Customer> customers = customerService.getAllCustomer();
 		
-		return new ResponseEntity<>(customers, HttpStatus.CREATED);
+		return new ResponseEntity<>(customers, HttpStatus.OK);
 		
 	}
 	

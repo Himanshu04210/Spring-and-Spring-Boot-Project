@@ -16,8 +16,12 @@ import org.springframework.stereotype.Service;
 import com.masai.Model.Customer;
 import com.masai.Repository.CustomerRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+
 
 @Service
+@Slf4j
 public class CustomAuthProvider implements AuthenticationProvider {
 	
 	@Autowired
@@ -33,11 +37,16 @@ public class CustomAuthProvider implements AuthenticationProvider {
 		
 		String pswrd = authentication.getCredentials().toString();
 		
+		
+		
+		System.out.println(passwordEncoder.encode(pswrd));
+		
 		Customer customer = customerRepository.findByEmail(userName).orElseThrow(() -> new RuntimeException("email not matched"));
 		
-		if(passwordEncoder.matches(customer.getPassword(), pswrd)) {
+		
+		if(passwordEncoder.matches(pswrd, customer.getPassword())) {
 			List<GrantedAuthority> authorities = new ArrayList<>();
-			return new UsernamePasswordAuthenticationToken(customer, pswrd, authorities);
+			return new UsernamePasswordAuthenticationToken(customer, null, authorities);
 		}
 		
 		else throw new BadCredentialsException("password is not matched");
