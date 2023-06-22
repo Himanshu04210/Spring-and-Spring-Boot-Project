@@ -39,7 +39,7 @@ public class CustomAuthProvider implements AuthenticationProvider {
 		
 		
 		
-		System.out.println(passwordEncoder.encode(pswrd));
+		log.info(passwordEncoder.encode(pswrd));
 		
 		Customer customer = customerRepository.findByEmail(userName).orElseThrow(() -> new RuntimeException("email not matched"));
 		
