@@ -35,7 +35,7 @@ public class CustomerController {
 	
 	@PostMapping("/customers")
 	public ResponseEntity<Customer> registerCustomer(@RequestBody Customer customer) {
-		System.out.println(customer.getEmail());
+		
 		customer.setRole("ROLE_" + customer.getRole().toUpperCase());
 		customer.setPassword(passwordEncoder.encode(customer.getPassword()));
 		log.info(customer.getRole());
