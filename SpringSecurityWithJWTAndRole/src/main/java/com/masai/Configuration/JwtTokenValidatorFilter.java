@@ -41,7 +41,7 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter{
 				
 				String username =String.valueOf(claims.get("username"));
 				
-				String authorities = (String)claims.get("authorities");
+				String authorities = (String)(claims.get("authorities"));
 				List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
 				
 				Authentication auth = new UsernamePasswordAuthenticationToken(username, null, grantedAuthorities);
@@ -50,9 +50,11 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter{
 				SecurityContextHolder.getContext().setAuthentication(auth);
 			}
 			catch(Exception ex) {
-				throw new  BadCredentialsException("Invalid token caught");
+				throw new  BadCredentialsException("Invalid token received..");
 			}
 		}
+		
+		filterChain.doFilter(request, response);
 		
 		
 	}

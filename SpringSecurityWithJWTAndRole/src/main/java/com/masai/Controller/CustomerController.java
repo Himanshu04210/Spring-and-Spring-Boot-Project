@@ -15,7 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.masai.Model.Customer;
 import com.masai.Service.CustomerService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
+@Slf4j
 public class CustomerController {
 	
 	@Autowired
@@ -31,10 +34,11 @@ public class CustomerController {
 	
 	
 	@PostMapping("/customers")
-	public ResponseEntity<?> registerCustomer(@RequestBody Customer customer) {
-		
+	public ResponseEntity<Customer> registerCustomer(@RequestBody Customer customer) {
+		System.out.println(customer.getEmail());
 		customer.setRole("ROLE_" + customer.getRole().toUpperCase());
 		customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+		log.info(customer.getRole());
 		Customer savedCustomer = customerService.registerCustomer(customer);
 		
 		return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
