@@ -27,7 +27,7 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter{
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		
-		String jwt = SecurityConstants.JWT_HEADER;
+		String jwt = request.getHeader(SecurityConstants.JWT_HEADER) ;
 		
 		if(jwt != null) {
 			//if jwt is not null then jwt will contain 
@@ -61,8 +61,9 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter{
 	
 	
 	//this time this validation filter has to be executed for all the apis except the /login api
-	protected boolean shouldNotFilter(HttpServletRequest request) {
+	@Override
+	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+	
 		return request.getServletPath().equals("/signIn");
 	}
-
 }

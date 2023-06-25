@@ -1,5 +1,6 @@
 package com.masai.Controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,6 +14,7 @@ import com.masai.Repository.CustomerRepository;
 @RestController
 public class LogginController {
 	
+	@Autowired
 	private CustomerRepository customerRepository;
 	
 	
