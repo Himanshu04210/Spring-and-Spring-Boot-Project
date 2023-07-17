@@ -1,6 +1,7 @@
 package com.masai.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -93,5 +94,26 @@ public class UserServiceImple implements UserService {
 
         return stringBuilder.toString();
     }
+
+	@Override
+	public List<User> getAllUsers(String key) throws UserException {
+		
+
+		CurrentUserSession validCustomerSession = sRepo.findByUuid(key);
+		
+		if(validCustomerSession == null) {
+			throw new UserException("User Not Logged In with this username");
+			
+		}
+		if(key.length()<8) throw new UserException("Role should be admin for adding a book");
+		
+		List<User> users= userRepository.findAll();
+
+		if(users.isEmpty()) throw new UserException("No user is present");
+
+		return users;
+
+
+	}
 
 }

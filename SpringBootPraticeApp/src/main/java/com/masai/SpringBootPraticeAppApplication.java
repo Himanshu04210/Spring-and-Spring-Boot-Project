@@ -4,9 +4,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.batch.JobLauncherApplicationRunner;
 
-@SpringBootApplication
+@SpringBootApplication	
 public class SpringBootPraticeAppApplication /*extends SpringBootServletInitializer*/ implements ApplicationRunner{
 
 //	@Override
