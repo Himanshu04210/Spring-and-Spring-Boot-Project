@@ -1,0 +1,741 @@
+reserved words in EL:-
+==================
+
+lt , le, gt , ge
+
+eq , ne , true, false
+
+and ,or, not , instanceof
+
+div,mod,empty, null
+
+
+
+Advantage of MVC1 :-
+--------------------------
+
+--here we have seperated the Presentation Logic from the BusinessLogic and DataAcceessLogic with the help of controller(servlet). it leads to better code maintaince and development, parrellal development is also possible.
+
+--the main objective of the MVC pattern is to provide loose coupling between business logic and presentation logic of the application
+
+
+disadvantage of this MVC1 pattern:-
+------------------------------------------
+
+--for larger application for each client request (use-case ) we need a seperate controller (a seperate Servlet)
+
+--there will be multiple entry point of application.
+
+
+
+
+MVC 2 architecture :- or refinement of MVC 1 pattern:-
+-----------------------------------------------------------------
+
+--to overcome the above problem, MVC2 archtecture is proposed after refining the mvc1 architecture , according to this architecture :-
+
+--for entire application , only one controller will be there , which will act as a front-controller , this front controller is nothing but a servlet program.
+
+--this front-controller will only trap all the request for an application for any use-case, and it takes the support of a helper controller class (abstract controller)
+
+--here this helper controller class should have multiple methods to process each use-case (each user request) , these methods will perform the actual request processing duty by communicating java bean class , Service layer class ,DAO class etc.
+
+
+--By mannual approach we can use this pattern , but we have to write this frontcontroller servlet class, and lots of code and configurations ..
+
+--so there are lots of readymade f/w s/w r available in the market to implememt this MVC2 / MVC pattern to develop a web-application.
+
+those are :-
+
+struts :- from apache foundation
+
+JSF :- from sun-microsystem/ Oracle corp
+
+Spring-mvc :- interface 21 /pivotal
+
+
+
+Rules of MVC2 / MVC architecture:-
+============================
+
+1. in mvc , every layer is designed to place a specific logic , just add only those logics in that layer , don't place any extra logic .
+
+
+2.all the operations and executions in web-app must takes place under the monitoring and control of a controller servlet.
+
+
+3.view layer resource must not talk with the model layer component and vice-versa, they must intract each other through the controller servlet. (two jsps should not intract each other directly, they must intract through the controller servlet)
+
+4.there can be multiple resources (jsp files ) in view layer and there can be multiple resource (business classes ) in the model layer but there must be only one servlet program in the controller layer acting as front cotnroller .
+
+5.client should not access any view layer resource (jsps) directly.(i.e only one entry point should be there for entire application).
+
+
+
+
+Servlet Url patterns:-
+================
+
+--to a single servlet we can give multiple different url patterns.
+
+--in the web.xml file using differnent <servlet-mapping> tag.
+
+--and in annotation based approch , using @WebServlet annotation ex:- @WebServlet({"/third", "/fourth"})
+
+
+
+--in servlet specification , there are 3 types of url patterns we can give to a servlet:-
+
+1.exact match
+
+2.directory match
+
+3.extension match
+
+
+Note:- if we try to give any other than above mentioned url pattern or mixed url pattern , then our deployement will fail and it generates error in the server.
+
+
+1.exact match
+-----------------
+
+-- it must start with the "/" and it matches the exact content after this "/"
+ex:-
+
+/xyz  --valid
+
+/x/y  --valid
+
+/x/y*   (it will match only with /x/y*   , not with /x/y and any other charecter)
+
+
+2.directory match:-
+----------------------
+
+--it must start with the "/" and ends with "/*" symbol
+
+/x/y/* ----> url pattern
+
+valid match :- /x/y/ , /x/y/abc,   /x/y/z/abc   , 
+
+invalid match :- /x/y  , /x   , /x/yy    
+
+/*  or /   ---> url pattern (universal pattern)
+
+
+valid match :- /  , /x/y, /x , /abc , /a/b/c
+
+Note:- to make our servlet as root or front controller we can give the url pattern as "/*" or "/"
+
+
+3.extension match:-
+------------------------
+
+--it must start with * symbol and ends with an extension word or letter
+
+--it should not start with the "/" 
+
+ex:-
+
+*.do   valid match (a.do, abc.do, a/b/c.do )
+
+*.abc
+
+
+Note: if we give mixup like *.do/*  then at server it will give an error.
+
+--this extension match pattern also can be used to make our servlet as a front controller.
+
+
+Session Tracking:-
+=============
+
+session :- set of continiuos related request response operation performed on a webpage by the user from the browser window for a specific time period is known as session.
+
+--we need to track a session to make web-application remember client data across mutiple request to a web-application.
+
+--we need to track the session becoz of the stateless nature of the http protocol.
+
+--we achive the session tracking by using following technique even though the http is a stateless protocol:-
+
+1.hidden form fields
+
+2.cookies 
+
+3.HttpSession object
+
+4.url-rewriting
+
+
+1.hidden form fields:-
+==================
+
+a.jsp:-
+-------
+
+<h1 align="center">a.jsp</h1>
+
+
+<form action="b.jsp" method="post">
+
+Enter First Name :<input type="text" name="fname"> <br>
+
+<input type="submit" value="GO">
+
+</form>
+
+
+
+b.jsp:-
+--------
+
+
+<h1 align="center">b.jsp</h1>
+
+
+<form action="result.jsp" method="post">
+
+<input type="hidden" name="fname" value="${param.fname }">
+
+Enter LastName :<input type="text" name="lname"> <br> <br>
+
+<input type="submit" value="Done">
+
+</form>
+
+
+result.jsp:-
+------------
+
+<h1>result.jsp</h1>
+
+<h1>${param.fname} - ${param.lname }</h1>
+
+
+
+Cookies:-
+========
+
+--it is name-value pair of textual information which allocates memory at client machine , and remembers the client data accross mutiple request.
+
+
+--cookies allocates memory at client side , but they travel over the network along with http request and http response.
+
+--a cookie is created programtically by the dynamic web-resource program
+
+--every cookie is identified with its unique cookie id.
+
+Note:- every cookie remembers the name of the web-app from which this cookie beloings to 
+
+--one browser s/w can contains cookies belonging from multiple web-applications.
+
+--cookie belonging to one web-app will go back to that web-app only, 
+
+--every cookie created at server side program and must be added to the response object manually.
+
+--cookie goes to the client along with the http response as a "set-cookie" response header.
+
+--cookie come back to the web-app along with the req from client as request header called "cookies".
+
+
+
+there are 2 types of cookies :-
+-----------------------------------
+
+1.session cookies (temporary cookies):-
+
+--these cookies allocates memory on the browser window without any expiry time, so these cookies will be destroyed automatically once we close the browser window.
+
+Cookie c1= new Cookie("city","chennai");
+response.addCookies(c1);
+
+2.persistence cookies :- these cookies will allocates the memory on the file system of client machine in the form of files having expiry time
+
+--so these cookies will be destroyred only when thier expiry time is completed.
+
+ex:-
+
+Cookie c2= new Cookie("choice","VivoMobile");
+c2.setMaxAge(3600*24*30); // for one month
+response.addCookies(c2);
+
+
+--cookie can not store object as value, it can store only the text value.
+
+
+to read the cookies :-
+------------------------
+
+Cookie[] ckr=  request.getCookies();
+
+if(ckr != null || ckr.length >0){
+
+for(Cookie ck:ckr){
+
+System.out.println(ck.getName() +"============"+ck.getValue());
+
+}
+
+}
+
+
+ex:-
+
+
+a.jsp:-
+-------
+
+<body>
+
+
+<%
+
+String u="";
+
+String p="";
+
+ Cookie[] ckr=request.getCookies();
+
+	if(ckr != null ){
+		
+		for(Cookie ck:ckr){
+			
+			if(ck.getName().equals("username"))
+				u=ck.getValue();
+			if(ck.getName().equals("password"))
+				p=ck.getValue();
+			
+			
+		}
+		
+		
+		
+		
+	}
+ 
+%>
+
+
+<h1 align="center">Login Page</h1>
+
+
+<form action="Srv" method="post">
+
+Enter Username  :<input type="text" name="username" value="<%=u %>"> <br> <br>
+Enter Password  :<input type="password" name="password" value="${p }"> <br>
+
+<input type="submit" value="Login">
+
+</form>
+
+</body>
+
+
+
+Srv.java:-
+------------
+
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
+		
+		String resultPage="invalid.jsp";
+		
+		
+		if(username.equals("admin") && password.equals("12345")) {
+			
+			resultPage="welcome.jsp";
+			
+			
+			Cookie ck1=new Cookie("username", username);
+			Cookie ck2=new Cookie("password", password);
+			
+			
+			ck1.setMaxAge(3600*24);
+			ck2.setMaxAge(3600*24);
+			
+			response.addCookie(ck1);
+			response.addCookie(ck2);
+			
+		}
+		
+		
+		request.getRequestDispatcher(resultPage).forward(request, response);
+		
+	}
+
+
+welcome.jsp:-
+--------------
+<body>
+<h1>Welcome Admin...</h1>
+
+
+</body>
+
+
+invalid.jsp:-
+-----------
+<body>
+
+<h1>Invalid Username or password...</h1>
+
+<a href="a.jsp">Try Again</a>
+
+
+</body>
+
+
+
+HttpSession:-
+===========
+
+--HttpSession is an object created by the web-container when we send the first request to the web-application, this object allocates memory on the webserver and it is specific to one browser window.
+
+
+--Every HttpSession object contains an unique id called JSESSIONID, based on this id the session object will be identified accross multiple request that are comming to a web-app during a session (from the same browser window.)
+
+Note:- this JSESSIONID and its value (one unique hash value ) normally travel with the http request-header  and http response-header as a cookie(temporary cookie).
+
+cookie-name :- JSSESSIONID
+cookie-value :- one unique hash value.
+
+
+--as a programmer we can get the refference of this HttpSession object by using:-
+
+a1.jsp :-
+
+HttpSession session=  request.getSession();
+
+session.setAttribute("studentlist",students);
+
+b1.jsp:-
+
+HttpSession session=  request.getSession();
+
+Object obj = session.getAttribute();
+List<Student> students= (List<Student>)obj;
+
+ 
+
+methods of the HttpSession object:-
+-----------------------------------------
+HttpSession session=  request.getSession();
+session.setAttribute("studentlist",students);
+Object obj = session.getAttribute();
+
+
+session.isNew() ;// to check a session obj is newly created or not.
+
+session.invalidate() ; //to inactivate a perticular session object.
+
+session.setMaxInactiveInterval(int sec);
+
+ex:-
+
+
+s1.jsp:-
+-------
+
+<body>
+
+<h1>Home page</h1>
+
+<a href="Srv">Click</a>
+
+</body>
+
+Srv.java:-
+------------
+
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		
+		HttpSession session= request.getSession();
+		
+		session.setAttribute("message", "Welcome to HttpSession.....");
+		
+		response.sendRedirect("s2.jsp");
+		
+		
+}
+
+s2.jsp:-
+---------
+
+<body>
+
+
+ <h1>The Message is  ${message }</h1>
+
+<a href="LogoutSrv" >Logout</a>
+
+
+</body>
+
+LogoutSrv.java:-
+------------------
+
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		request.getSession().invalidate();
+		
+		response.sendRedirect("s1.jsp");
+		
+}
+
+
+Url-rewriting:-
+===========
+
+--this approach we follow to track the session even if the cookies are disabled in the browser s/w.
+
+--in this approach we append the JSSESIONID and its value to the response object and send this JSESSIONID and its value through the http response object manually.
+
+
+--we append the JSESSIONID with the response object by calling 
+
+response.encodeURL(-)  method.
+
+
+from the previous application:- block the cookies and do the the modification of Srv.java as follows:-
+
+
+
+Srv.java:-
+----------
+
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		
+		HttpSession session= request.getSession();
+		
+		session.setAttribute("message", "Welcome to HttpSession.....");
+		
+		String encodedurl = response.encodeURL("s2.jsp");
+		
+		System.out.println(encodedurl);
+		
+		response.sendRedirect(encodedurl);
+		
+		
+	}
+
+
+
+
+
+
+Spring mvc using Spring Boot:-
+=======================
+
+--spring boot is a spring platform that mainly focus on convension over configuration.
+
+--spring boot is not a framework s/w , it is just a spring application development platform which provides RAD (rapid application development) feature to spring f/w.
+
+--with the spring boot we can simply get rid of all xml related configuration.
+
+--with the spring boot , we can avoid lots of boiler plate code to develop a spring application , like adding lots of jar files ,and lots of xml configuration.
+
+--so that we can focus on actual business logic and spring boot itself will do all the configuration.
+
+--it provides integrated tomcat server to develop spring mvc based web-application , so no need to 
+install any server explicitly.
+
+
+spring boot provides cloud support and some 3rd party api support to develop microservices.
+
+
+--with the spring boot we can create web as well as non-web application also.
+
+
+
+
+there are various ways to use spring boot to develop a spring application:-
+========================================================
+
+1.by installing sts plugin in normal eclipse IDE.
+
+2by installing entire STS(Spring Tool Suite) s/w (it is a eclipse IDE only with STS plugin configured.)
+
+3.by using SpringInitializer website
+
+4.by using Spring CLI (command line interface).
+
+5.by using maven project (add the spring-boot related dependency inside the pom.xml)
+ 
+
+normal Spring Application using Spring boot:-
+====================================
+
+--create a normal spring boot application without adding any dependencies from the wizard ..
+
+--in the generated application inside the main class the meaing of following annotation is :-
+
+@SpringBootApplication   =  @Configration + @ComponentScan annotation 
+
+
+
+ex:-
+
+@SpringBootApplication
+public class NormalSpringApp1Application {
+
+	public static void main(String[] args) {
+		
+		
+	//ApplicationContext ctx= SpringApplication.run(NormalSpringApp1Application.class, args);
+	ConfigurableApplicationContext ctx= SpringApplication.run(NormalSpringApp1Application.class, args);
+		
+		
+		Demo d= ctx.getBean("demo",Demo.class);
+		
+		
+		d.sayHello();
+	}
+
+}
+
+
+Demo.java:-
+--------------
+
+
+@Service
+public class Demo {
+	
+	
+	@Autowired
+	private MyClass m;
+	
+	public void sayHello() {
+		
+		System.out.println("Welcome to the Spring Boot application");
+		
+		m.fun1();
+	}
+
+}
+
+
+MyClass.java:-
+----------------
+
+
+@Component
+public class MyClass {
+
+	
+	public void fun1() {
+		System.out.println("inside fun1 of MyClass");
+	}
+	
+}
+
+
+creating spring boot web-application:- (this application is by default MVC application)
+==============================
+
+--create a spring boot application by adding "spring-web" dependency ..
+
+--with this dependency integrated tomcat server will be available to our application.
+
+--in this spring boot mvc application the front controller servlet is "DispatcherServlet"(it is predefined Servlet given by spring-mvc framework) which is already configured in our application.
+
+
+--to process each request , this DispatcherServlet will take the assistence of a helper controller class , which will be annotated with @Controller annotation.
+
+--this helper controller class will have different types of request handling methods which will be annotated with @RequestMapping annotation.
+
+
+--this method will process the client request and return the logical name of physical jsp page to the DS.
+
+Note:- spring boot web application does not support jsp by default , to support the jsp we need to add "tomcat-jasper" related jar file dependency inside the pom.xml.
+
+
+
+MyController.java:-
+-----------------------
+
+package com.ratan.controllers;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+public class MyController {
+	
+	
+	@RequestMapping("/hello")
+	public String sayHello() {
+		
+		//
+		
+		return "welcome"; //this the logical name of the physical jsp page
+	}
+	
+	
+}
+
+
+--here we need to create a "welcome.jsp" file. this jsp should be private jsp (no body should access it directly)
+--create "webapp" folder under the src---> main   folder (this 'webapp' will be a public folder)
+
+--under this 'webapp' folder create a 'WEB-INF' folder and under this "WEB-INF" create "jsps" folder and create 
+"welcome.jsp" file inside this jsps folder.
+
+
+--open the application.properties file and enter the following lines:-
+
+
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,921 @@
+Form handling:-
+=============
+
+
+Model Attribute:-
+=============
+
+--data kept inside the Model object with a logical name is called as ModelAttribute.
+
+--this model data will be placed inside the request scope(HttpServletRequest object) by the spring mvc f/w .
+
+--there are various ways to place a data inside the Model object.
+
+1. inside Model object , by taking Model object as a request handler method parameter
+
+2. inside ModelMap , Map by taking them as a request handler method parameter 
+
+3.inside ModelAndView object (we need to create ModelAndView object inside the request handler method and return that object from the request handler method.)
+
+4.using @ModelAttribute annotation
+
+
+ex:-
+
+
+	@GetMapping("/")
+	public String homeLauncher(@ModelAttribute("studentData") Student student) {
+		
+		student.setRoll(50);
+			
+		return "home";
+	}
+
+
+--here Student obejct will be created with the default value and supplied to this method , here @ModelAttribute annotation will keep the Student object inside the Model object with the label "studentData".
+
+public String homeLauncher(@ModelAttribute Student student)  :- here Student object kept inside the Model object with the label "student".
+
+
+@ModelAttribute annotation can be used in 2 places 
+
+1.as a method parameter level :-  inside the request handler method parameter .
+
+2.as method level :- on the top of the any method 
+
+ex:- as method level:-
+-------------------------
+
+	@ModelAttribute("studentData")
+	public Student fun1() {
+		
+		Student st=new Student(10, "Ram", "Delhi", 780);
+		return st;
+		
+	}
+
+or 
+
+
+	@ModelAttribute
+	public void fun1(Model model) {
+		Student st=new Student(10, "Ram", "Delhi", 780);
+		model.addAttribute("studentData", st);
+	
+	}
+
+--in both case , this @ModelAttribure annotated method will be called by the f/w "before any request handler method call."
+
+--and student object will be placed inside the Model object (request scope) with the label "studentData".
+
+
+Note:- basically we place processed data (data coming from the Service layer ) inside the Model object(request scope),
+but sometime it is required to place some initial data on the form page at the time of launching the form page, in this case we can use @ModelAttribute as method level to place some initial data while launching a form.
+
+
+--@ModelAttrubute as method level , will be sharable across the multiple request handler method.
+
+
+ex:-
+
+
+SampleController.java:-
+----------------------------
+
+
+@Controller
+public class SampleController {
+
+	
+	@ModelAttribute("studentData")
+	public Student fun1() {
+		
+		Student st=new Student(10, "Ram", "Delhi", 780);
+		return st;
+		
+	}
+
+	
+/*	@ModelAttribute
+	public void fun1(Model model) {
+		Student st=new Student(10, "Ram", "Delhi", 780);
+		model.addAttribute("studentData", st);
+	
+	}
+*/	
+	
+	
+	@GetMapping("/")
+	public String homeLauncher() {
+		
+		return "home";
+		
+	}
+	
+	
+	@GetMapping("/welcome")
+	public String welcomeLauncher() {
+		
+		return "welcome";
+		
+	}
+	
+}
+
+ 
+Spring mvc-form validation:-
+======================
+
+--we need to validate a input form in Java script (at client side ) as well as at server side also , when a valid value will come from the client , then only Service Layer method should be called by the controller.
+
+
+--in spring mvc we can perform form validation by 3 ways:-
+
+1.by using custom validator class 
+
+2.by using annotations
+
+3.by mixing both 
+
+
+validation by using custom validtor class:-
+-------------------------------------------------
+
+step 1:- here first we need to create a form backing class, it is a java bean class , in  this class we need to define variables for those many input fileds we required in our form page.
+
+ex:-
+
+Student.java:-
+------------------
+
+
+public class Student {
+
+	
+	private Integer roll;
+	private String name;
+	private String address;
+	private Integer marks;
+
+//getter and setters methods
+	
+}
+
+
+step 2:- in controller class define a method that will launch a form page.
+
+ex:-
+
+	@GetMapping("/")
+	public String homeLauncher() {
+		
+		return "studentRegistrationForm";
+		
+	}
+	
+
+step3:- create a studentRegistrationForm.jsp form page:-
+
+ex:-
+
+<h1 align="center">Student Registration Form Screen</h1>
+
+<hr/>
+
+<form action="registerStudent" method="post">
+
+Enter Roll :<input type="text" name="roll" />
+<br><br>
+
+Enter Name :<input type="text" name="name" />
+<br><br>
+
+Enter Address :<input type="text" name="address" />
+<br><br>
+
+Enter marks :<input type="text" name="marks" />
+<br><br>
+
+
+<input type="submit" value="Register">
+
+</form>
+
+
+
+--here we need to refactor above step 2 and step3 :-
+
+--in step 2 while defining a form launcher method, that will launch the form page, we need to place some initial data to the 
+form launcher page, for this we need to create form backing class obejct with the initial value and place this object inside the Model object.
+
+ex:-
+
+	@GetMapping("/")
+	public String homeLauncher(Model model) {
+		
+		Student student=new Student();
+		
+		model.addAttribute("studentData", student);
+		
+		
+		return "studentRegistrationForm";
+		
+	}
+	
+
+--now in step 3 we need to bind this model data (studentData) which having initial data , with the form page.
+
+--for this we need to use spring-mvc f/w given form tag library:-
+
+<%@taglib prefix="f" uri="http://www.springframework.org/tags/form" %>
+
+
+--in this <form> tag we bind the model attribute (data kept in Model object) by using "modelAttribute" property of spring-mvc supplied <form> tag.
+
+ex:-
+
+<body>
+<%@taglib prefix="f" uri="http://www.springframework.org/tags/form" %>
+
+<h1 align="center">Student Registration Form Screen</h1>
+
+<hr/>
+
+<f:form action="registerStudent" method="post" modelAttribute="studentData">
+
+Enter Roll :<f:input path="roll" />  //here "roll" is the variable name of the form backing class
+<br><br>
+
+Enter Name :<f:input path="name" />
+<br><br>
+
+Enter Address :<f:input path="address" />
+<br><br>
+
+Enter marks :<f:input path="marks"/>
+<br><br>
+
+
+<input type="submit" value="Register">
+
+</f:form>
+
+
+</body>
+
+
+step4:- to display the form validation error message beside the input control we need to use <f:errors > tag ex:-
+
+ex:-
+
+
+<body>
+
+<%@taglib prefix="f" uri="http://www.springframework.org/tags/form" %>
+
+<h1 align="center">Student Registration Form Screen</h1>
+
+<hr/>
+
+<f:form action="registerStudent" method="post" modelAttribute="studentData">
+
+Enter Roll :<f:input path="roll" /> <f:errors path="roll"/>
+<br><br>
+
+Enter Name :<f:input path="name" /> <f:errors path="name"/>
+<br><br>
+
+Enter Address :<f:input path="address" /> <f:errors path="address"/>
+<br><br>
+
+Enter marks :<f:input path="marks"/> <f:errors path="marks"/>
+<br><br>
+
+
+<input type="submit" value="Register">
+
+</f:form>
+
+
+</body>
+
+
+<f:errors> tag given to display the form validation errors if they occur....
+
+
+
+step 5:- create a custom validator class by implementing Validator interface and write all the validation related code in this class
+
+Note:- we should apply @Component annotaiton on the top of this class to register this class with the spring container.
+
+
+ex:-
+
+StudentValidator.java:-
+---------------------------
+
+package com.ratan.validators;
+
+import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
+
+import com.ratan.beans.Student;
+
+@Component
+public class StudentValidator implements Validator {
+
+	@Override
+	public boolean supports(Class<?> c) {
+		
+		boolean flag= Student.class.isAssignableFrom(c);
+		
+		return flag;
+		
+	}
+
+	@Override
+	public void validate(Object target, Errors errors) {
+		
+		Student student= (Student)target;
+		
+		if(student.getRoll() < 100) {
+			
+			errors.rejectValue("roll", "", "Roll numner should not be less than 100");
+		}
+		
+		if(student.getName().length() < 3) {
+			errors.rejectValue("name", "name.invalid", "Name should be minimum 3 charecter");
+
+	//here first parameter is field name/variable name of the form backing class 
+	//second parameter is the key of the resource bundle file if we are using 
+	//any resource bundle file to specify the reusable validation error message(message.properties file )
+	//3rd prameter is the default error message , if we don't use any properties file(message.properties file)
+			
+
+
+		}
+
+	}
+
+}
+
+
+--supports(-) method verifies the valid form backing class .
+
+--inside the validate(--) method we write all the validation logics.
+
+--here Errors is an interface and spring f/w will pass the implementation class object 
+
+
+org.springframework.validation.Errors(I)
+			|
+			|--extends
+			|
+org.springframework.validation.BindingResults(I)
+			|
+			|--implements
+			|
+org.springframework.validation.BindException(C)
+
+
+
+step 6:-
+ 
+define a StudentValidator refference variable inside the Controller class and apply @Autowired annotation
+
+
+@Controller
+public class SampleController {
+
+	
+	@Autowired
+	private StudentValidator validator;
+	
+--
+--	
+}
+
+
+step 7:- call the validate(--) method by supplying formbacking class object and BindingResults object to this method from the request handler method.
+
+
+
+step 8:- verify the errors if any by calling hasError() method on BindingResults object and if it returns true then transfer the controll to the form page again.
+
+ex:-
+
+	@PostMapping("/registerStudent")
+	public String doRegisterStudent(@ModelAttribute("studentData")Student student,BindingResult br) {
+		
+		
+		validator.validate(student, br);
+		
+		
+		if(br.hasErrors()) {
+			return  "studentRegistrationForm";
+		}
+		
+		return "registrationSuccess";
+			
+	}
+	
+	
+Note:-
+--the meaning of the following line:-
+
+<f:form action="registerStudent" method="post" modelAttribute="studentData">
+
+	<f:input path="roll" />	
+</f:form> 
+
+is :- 
+
+
+
+<input type="text" name="roll" value = ${studentData.roll} />
+
+
+
+--if we want to write a error message in reusable form then we need to use a resource bundle file.
+
+--this resource bundle file is also can be used to implement i18n (internationalization) concept.
+
+--it is properties file by name "messages.properties" , we should keep this file under src/main/resources folder in spring boot application.
+
+--in this file keep the error message code and its description in the form of key-value pair.
+
+ex:-
+
+
+invalid.name=Name must be minimum 3 charecter length
+
+invalid.roll=Roll number should be greater than 100 
+
+
+--and we use these key inside the rejectValue(--) method ex:-
+
+
+if(student.getRoll() < 100) {
+			
+errors.rejectValue("roll", "invalid.roll", "Roll numner should not be less than 100");
+}
+
+--to make this message more reusable like to supply a dynamic value to this message depends upon certain criteria , so we need to define place holders inside these messages 
+
+ex:-
+
+invalid.roll=Roll number should be between {0} and {1} 
+
+
+--and we supply these placeholder values by using Object class array to the rejectValue method as 3rd parameter 
+
+ex:-
+
+errors.rejectValue("roll", "invalid.roll",new Object[] {100,200} ,"Roll numner should not be less than 100");
+
+
+Note:- spring boot internally uses "ReloadableResourceBundleMessageSource" bean  class to resolve these error message from the resource bundle file(messages.properties) file.
+
+
+
+validation using annotations:-
+======================
+
+--in this approach we uses "hibernate validator api" related annotations to perform validation on input values
+
+--for this we need to add following dependency inside pom.xml:-
+
+
+<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-validation -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+    <version>2.5.6</version>
+</dependency>
+
+
+--this dependency will provide annotaions of  "Java Bean Validation api  with Hibernate Validator api" to perform annotation based validation.
+
+--these annotations will be applied on the top of the formbacking class variables .
+
+--some of the validation annotations are :-
+
+@AssertTrue
+private boolean married;    :- the value of this variable must be true.
+
+
+@AssertFalse
+private boolean married;    :- the value of this variable must be false.
+
+
+@DecimalMax("50.25")
+private double price;  :- the value must be less than or equal to given value for double variable
+
+
+@DecimalMin("1.00")
+
+
+@Min("18") :- the of integer must be >= given value
+private int age
+
+
+@Max("60")
+
+
+@NotNull 
+private String name
+
+@Null
+
+@Size :-
+
+ex:-
+
+@Size(min=5, max=8)
+private String password;
+
+
+@Pattern :-
+
+--the value of the field must match the given expression
+
+ex:-
+
+@Pattern(regexp="[a-z]{5}$")
+private String username;
+
+
+@Past :- the value of the Date field should be past Date.
+
+@Past
+private Date dob;
+
+@Future
+
+@DateTimeFormat(pattern="dd-MM-yyyy")
+private Date joinDate;
+
+@Email
+
+@CreditCardNumber
+
+@NotEmpty
+
+@NotBlank
+
+
+--@NotEmpty and @NotBlank checks for the not null also
+
+--@NotBlank validates true . if the size of String should be greater that zero after triming it.
+
+
+ex:
+
+
+
+public class Student {
+
+	
+	@NotNull(message = "Roll number is mandatory")
+	@Min(value = 100, message = "Roll number should be greater than 100")
+	private Integer roll;
+	
+	
+	@Size(min = 3,max = 8,message = "size should be between 3 and 8 charecter")
+	@NotEmpty(message = "Name number is mandatory")
+	private String name;
+
+	private String address;
+	private Integer marks;
+	
+}
+
+
+
+--in order to activate the validation on the formbacking class object ,we need to apply @Valid annotation before  the formbacking class object inside the request handler method parameter.
+
+ex:-
+
+
+	@PostMapping("/registerStudent")
+	public String doRegisterStudent(@Valid @ModelAttribute("studentData") Student student,BindingResult br) {
+		
+		
+		if(br.hasErrors()) {
+			
+			return  "studentRegistrationForm";
+		}
+		
+		return "registrationSuccess";
+	
+	}
+
+
+validating check box:-
+=================
+
+
+example multicheck box:-
+------------------------------
+
+Student.java(form backing class):-
+----------------------------------------
+
+
+public class Student {
+
+	
+	@NotNull(message = "Roll number is mandatory")
+	@Min(value = 100, message = "Roll number should be greater than 100")
+	private Integer roll;
+	
+	
+	@Size(min = 3,max = 8,message = "size should be between 3 and 8 charecter")
+	@NotEmpty(message = "Name number is mandatory")
+	private String name;
+	private String address;
+	private Integer marks;
+	
+	//it will hold multiple selected checkbox value
+	@NotEmpty(message = "Select atleast one course")
+	private String[] courses;
+	
+//getters and setters 
+//toString()
+
+	
+}
+
+
+studentRegistrationForm.jsp:-
+------------------------------------
+
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+
+<style type="text/css">
+
+.er{
+color: red;
+
+}
+
+
+</style>
+
+
+
+</head>
+<body>
+<%@taglib prefix="f" uri="http://www.springframework.org/tags/form" %>
+
+<h1 align="center">Student Registration Form Screen</h1>
+
+<hr/>
+
+<f:form action="registerStudent" method="post" modelAttribute="studentData">
+
+Enter Roll :<f:input path="roll" /> <f:errors path="roll" class="er" />
+<br><br>
+
+Enter Name :<f:input path="name" /> <f:errors path="name" class="er"/>
+<br><br>
+
+Enter Address :<f:input path="address" /> <f:errors path="address" class="er"/>
+<br><br>
+
+Enter marks :<f:input path="marks"/> <f:errors path="marks" class="er"/>
+<br><br>
+
+Select Courses: 
+
+<f:checkbox path="courses" value="Java"/>Java
+<f:checkbox path="courses" value="Angular"/>Angular
+<f:checkbox path="courses" value="Spring"/>Spring
+<f:checkbox path="courses" value="Hibernate"/>Hibernate
+
+<f:errors path="courses" class="er"/>
+
+<br><br>
+
+
+<input type="submit" value="Register">
+
+</f:form>
+
+
+</body>
+</html>
+
+
+SampleController.java:-
+---------------------------
+
+
+@Controller
+public class SampleController {
+
+	
+	@GetMapping("/")
+	public String registrationFormLauncher(Model model) {
+		
+		Student student=new Student();
+		
+		student.setAddress("Chennai");
+		student.setName("Ravi");
+		
+		model.addAttribute("studentData", student);
+		
+		
+		return "studentRegistrationForm";
+		
+	}
+	
+	
+	@PostMapping("/registerStudent")
+	public String doRegisterStudent(@Valid @ModelAttribute("studentData") Student student,BindingResult br) {
+		
+		
+		System.out.println(student);
+		
+		
+		
+		if(br.hasErrors()) {
+			
+		
+			
+			return  "studentRegistrationForm";
+		}
+		
+		return "registrationSuccess";
+			
+	}
+	
+}
+
+
+registrationSuccess.jsp:-
+----------------------------
+
+<body>
+
+<h2> Student Registerd Successfully..!!</h2>
+
+
+<h2>Student Details : ${studentData }</h2>
+
+
+</body>
+
+
+
+Note:- if we want to check some course bydefault while launching  the form page  then we need to modify the formpage launcher method as follows:-
+
+
+	@GetMapping("/")
+	public String registrationFormLauncher(Model model) {
+		
+		Student student=new Student();
+		
+		student.setAddress("Chennai");
+		student.setName("Ravi");
+		
+		String[] clist= {"Java","Spring"};
+		
+		student.setCourses(clist);
+		
+		
+		model.addAttribute("studentData", student);
+		
+		
+		return "studentRegistrationForm";
+		
+	}
+
+
+single check box:-
+---------------------
+
+--in case of single check box we should not take String[] instead of that we need to take boolean field in the form backing class.
+
+ex:-
+
+
+	@AssertTrue(message = "Must select this value")
+	private boolean isIndian;
+	
+in the form page:-
+
+Nation:- 
+<f:checkbox path="isIndian"/> <f:errors path="isIndian" class="er"/>
+
+
+veryfy the getter and setter method for boolean filed it shoud be like as follows:-
+
+	public boolean getIsIndian() {
+		return isIndian;
+	}
+
+
+	public void setIsIndian(boolean isIndian) {
+		this.isIndian = isIndian;
+	}
+
+
+validation for Radio Button:-
+======================
+
+Student.java :- inside form backing class:-
+---------------
+
+
+	//it will hold the selected radio button value
+	@NotEmpty(message = "Must select gender")
+	private String gender;
+	
+//getter and setters 	
+
+
+in side the form page:-
+---------------------------
+
+
+Select Gender : 
+<f:radiobutton path="gender" value="male"/>MALE
+<f:radiobutton path="gender" value="female"/>FEMALE
+
+<f:errors path="gender" class="er"/>
+
+<br><br>
+
+
+Select Box validation:-(drop down box)
+----------------------------------------------
+
+Student.java:-
+------------------
+
+@NotEmpty(message = "Must select the city")
+private String city;
+
+//getters and setters 
+
+
+inside form page:-
+
+
+Select City : 
+
+<f:select path="city">
+
+<f:option value="">Select City</f:option>
+<f:option value="delhi">Delhi</f:option>
+<f:option value="chennai">Chennai</f:option>
+<f:option value="kolkata">Kolkata</f:option>
+<f:option value="mumbai">Mumbai</f:option>
+
+
+</f:select>
+
+<f:errors path="city" class="er"/>
+
+<br><br>
+
+
+
+Note:- in annotation based validation, if we want to utilize the reusable error messages from the resource bundle file (messages.properties file) then we should define the error message code in the {} curly bracket as follows:-
+
+
+	@Min(value = 100, message = "{invalid.roll}")
+	private Integer roll;
+
+--in order to resolve this message we need to configure LocalValidatorFactoryBean object inside the spring main class(spring configuration class) ex:-
+
+	@Bean
+	public LocalValidatorFactoryBean fun1(MessageSource msg) {
+		
+		LocalValidatorFactoryBean lvfb=new LocalValidatorFactoryBean();
+		
+		lvfb.setValidationMessageSource(msg);
+		
+		return lvfb;
+	
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

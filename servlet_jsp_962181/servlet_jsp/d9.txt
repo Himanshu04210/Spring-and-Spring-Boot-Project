@@ -1,0 +1,390 @@
+exception handling:-
+-------------------------
+
+--if our service method throws any exception, then that exception will be propgated to the Controller class , and then it will be propgated to the DispatcherServlet class (front controller), DispatcherServlet will try to map any unhandled exception to a default error handler page called "error.jsp"  .
+
+--so we need to create a error.jsp page to be launched automatically ,whenever any exception will raise in our request handler method.
+
+
+
+--in the request handler method , we should not handle the exceptions inside the try and catch block, for handling the exceptions we need to create a seperate exception handler method , in one the 2 ways :-
+
+1.at the controller level (inside the same controller class ) :- it will work only for that Controller class
+
+2.at the global exception handler (for all the controllers) (inside a seperate class) :- it will work for all the controller classes
+
+
+1.at the controller level:-
+-------------------------------
+
+ex:-
+
+EmployeeController.java:-
+--------------------------------
+
+
+
+@Controller
+public class EmployeeController {
+
+	
+	@Autowired
+	private EmployeeService empService;
+	
+	
+	@GetMapping("/")
+	public String homeLauncher() {
+		
+		return "home";
+		
+	}
+	
+	@GetMapping("/signUp")
+	public String launchSignUpPage(Model model) {
+		
+	Employee emp=new Employee();
+	
+	model.addAttribute("empData", emp);
+		
+		return "employeeRegistration";
+	}
+	
+	
+	@PostMapping("/registerEmployee")
+	public ModelAndView doRegisterEmployee(@Valid @ModelAttribute("empData") Employee employee , BindingResult br) {
+	
+		
+		if(br.hasErrors()) {
+			return new ModelAndView("employeeRegistration");
+		}
+
+		
+		Employee savedEmployee= empService.registerEmployee(employee);
+		
+		ModelAndView mv=new ModelAndView("registerSuccess","employee",savedEmployee);
+		
+		return mv;
+		
+	}
+	
+	
+	@GetMapping("/getEmployeeById")
+	public String getEmployeeByIdFormLauncher() {
+			
+		return "getEmployeeForm";
+		
+	}
+	
+
+	@GetMapping("/getEmployee")
+	public ModelAndView doGetEmployee(Integer empId) throws EmployeeNotFoundException {
+		
+		if(empId ==50) {
+			throw new IllegalArgumentException("illegal Argument");
+		}
+		
+		Employee employee= empService.getEmployeeById(empId);
+		
+		ModelAndView mv=new ModelAndView("employeeDetails","emp",employee);
+		
+		
+		return mv;
+	}
+	
+	
+	
+	//it is for specific type EmployeeNotFoundException
+	@ExceptionHandler(EmployeeNotFoundException.class)
+	public String exceptionHandler1(EmployeeNotFoundException exp,Model model) {
+		
+		System.out.println("inside Employee Not found exception");
+		
+		model.addAttribute("expdetails", exp.getMessage());
+		
+		return "error";
+		
+		
+	}
+	
+	
+	//this is for generic type (any other type exceptions)
+	@ExceptionHandler(Exception.class)
+	public String exceptionHandler2(Exception exp,Model model) {
+		
+		model.addAttribute("expdetails", exp.getMessage());
+		
+		System.out.println("insdie Exception");
+		
+		return "error";	
+	}
+		
+}
+
+
+2.at the global exception handler :-
+---------------------------------------
+
+--here we need to create a seperate exception handler class annotated with @ControllerAdvice.it will work as AOP fashion.
+
+ex:-
+
+
+GlobalExceptionHandler.java:-
+-------------------------------------
+
+
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+	
+
+	
+	@ExceptionHandler(EmployeeNotFoundException.class)
+	public String exceptionHandler1(EmployeeNotFoundException exp,Model model) {
+		
+		System.out.println("inside Employee Not found exception");
+		
+		model.addAttribute("expdetails", exp.getMessage());
+		
+		return "error";
+		
+		
+	}
+	
+	
+	@ExceptionHandler(Exception.class)
+	public String exceptionHandler2(Exception exp,Model model) {
+		
+		model.addAttribute("expdetails", exp.getMessage());
+		
+		System.out.println("insdie Exception");
+		
+		return "error";
+			
+	}	
+}
+
+
+Note:- we should always create our exception handler page by giving the name other than error.jsp , so that we can differntiate between application specific exceptions and normal common errors of spring mvc.
+
+
+getEmployeeForm.jsp:-
+----------------------------
+
+<body>
+
+
+<h1 align="center">Get Employee By ID Form </h1>
+
+<hr>
+
+<form action="getEmployee" method="get" >
+
+Enter Employee Id :<input type="text" name="empId" /> <br><br>
+
+<input type="submit" value="Get Employee">
+
+</form>
+
+
+Note:- for only one field if we need to perform form validation then we can use custom validation
+
+
+home.jsp:-
+-------------
+
+<body>
+
+<h1 align="center">Welcome to Employee Management system</h1>
+
+
+<a href="signUp">Register Employee</a>
+<br><br>
+
+<a href="getEmployeeById">Get Employee By Employee Id</a>
+
+
+</body>
+
+
+employeeDetails.jsp:-
+------------------------
+
+<body>
+
+<h1>The Employee Details is :</h1>
+
+
+<h2> Employee id : ${emp.empId }</h2>
+<h2> Employee name : ${emp.name }</h2>
+<h2> Employee Email : ${emp.email }</h2>
+<h2> Employee password : ${emp.password }</h2>
+<h2> Employee Salary : ${emp.salary }</h2>
+
+</body>
+
+
+employeeRegistration.jsp:-
+--------------------------------
+
+<body>
+<%@taglib prefix="f" uri="http://www.springframework.org/tags/form" %>
+
+
+<h1 align="center">Employee Registration Screen</h1>
+
+<hr>
+
+
+<f:form action="registerEmployee" method="post" modelAttribute="empData">
+
+
+Enter EmployeeName: <f:input path="name" /> <f:errors path="name"/>
+
+<br> <br>
+
+Enter Email Id: <f:input path="email" /> <f:errors path="email"/>
+<br><br>
+
+Enter Password: <f:input path="password" /> <f:errors path="password"/>
+<br><br>
+
+Enter Salary: <f:input path="salary" /> <f:errors path="salary"/>
+<br><br>
+
+<input type="submit" value="Register">
+
+</f:form>
+
+</body>
+
+
+EmployeeService.java(I):-
+------------------------------
+
+
+public interface EmployeeService {
+
+	
+	public Employee registerEmployee(Employee employee);
+	
+	public Employee getEmployeeById(Integer employeeId)throws EmployeeNotFoundException;
+	
+}
+
+
+EmployeeServiceImpl.java:-
+--------------------------------
+
+
+@Service
+public class EmployeeServiceImpl implements EmployeeService{
+
+	@Autowired
+	private EmployeeDao empDao;
+	
+	
+	@Override
+	public Employee registerEmployee(Employee employee) {
+		
+		//Employee savedEmployee= empDao.save(employee);
+		//return savedEmployee;
+		
+		return empDao.save(employee);
+	}
+
+
+	@Override
+	public Employee getEmployeeById(Integer employeeId) throws EmployeeNotFoundException {
+	
+		
+		//Optional<Employee> opt=  empDao.findById(employeeId);
+		
+		/*	
+		if(!opt.isPresent()) {
+			throw new EmployeeNotFoundException("Employee Does not exist with Id "+employeeId);
+		}
+		
+		//Employee employee= opt.get();
+		
+		//return employee;
+		
+		return opt.get();
+		
+	*/
+		
+		//return opt.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with Id "+employeeId));
+		
+		
+return empDao.findById(employeeId).orElseThrow(() ->new EmployeeNotFoundException("Employee not found with Id "+employeeId) );
+						
+	}
+}
+
+
+EmployeeDao.java:-
+----------------------
+
+package com.ratan.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.ratan.beans.Employee;
+
+public interface EmployeeDao extends JpaRepository<Employee,Integer> {
+
+}
+
+
+
+
+EmployeeNotFoundException:-
+-------------------------------------
+
+package com.ratan.exceptions;
+
+public class EmployeeNotFoundException extends Exception{
+
+	public EmployeeNotFoundException() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public EmployeeNotFoundException(String message) {
+		super(message);
+	}
+	
+	
+}
+
+
+Employee.java:-
+--------------------
+
+
+@Entity
+public class Employee {
+
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Integer empId;
+	
+	@NotEmpty(message = "Name is mandatory")
+	@Size(min=3,message = "Minimum size should be 3 charecter")
+	private String name;
+	@Email(message = "Enter Valid Email Address")
+	private String email;
+	
+	
+	private String password;
+	private Integer salary;
+
+//getters and setters	
+}
+
+
+
+
+
+
+ 

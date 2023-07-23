@@ -1,0 +1,712 @@
+Step 1:- create a spring starter project by selecting spring-web dependency.
+
+step 2:- add the tomcat-jasper dependency inside the pom.xml file(verify the version of tomcat inside the maven-depdendendies)
+
+
+step3:- create the following folder structure to place the jsp files :- (to make the jsp as private)
+
+
+src--->main===>webapp====>WEB-INF====>jsps 
+
+
+step4:- create a "home.jsp" file inside the "jsps" folder.
+
+
+step 5:- make the following entries inside the "application.properties" file (it is the main configuration file of our application)
+
+
+server.port=8088
+spring.mvc.view.prefix=/WEB-INF/jsps/
+spring.mvc.view.suffix=.jsp
+
+
+step 6:- create a controller class annotated with @Controller annotation (this class is a helper controller of the DispatcherServlet front controller)
+
+
+step7:- create a request handling method , in this method write the request processing logic and from this method return the result page name (logical name of the physical jsp page)
+
+Note:- this method should be annotated with @RequestMapping annotation, having "url" for a perticular use-case.
+
+ex:-
+
+SampleController.java:-
+-------------------------------
+
+@Controller
+public class SampleController {
+
+	
+	@RequestMapping("/welcome")
+	public String welcomeHandling() {
+		
+		//here we need to write the request processing logic 
+		//SL ----> DAL ----->DB 
+		
+		return "home"; //this is the logical name of the physical jsp page
+	}	
+}
+
+--in spring-mvc framework , there is a "ViewResolver" component which will resolve the actual physical page by taking returned value from this request handler method and by using prefix and suffix in application.properties file.
+
+
+
+step 8:- launch this application by going to the main class and run the main class as a Spring boot application.
+
+
+step 9:- give the following url from the browser :-
+
+http://localhost:7000/welcome   
+
+http://localhost:7000/   --> to configure as a root url  :- @RequestMapping("/")
+
+
+Note:- we can not have 2 different request handling method for the same uri. it will give a runtime exception
+--where as multiple request handling methods can return the same jsp page name.
+
+
+
+
+--if we don't pass any http request method name to the request handler method then it will autodetect the GET or POST, ...
+
+	
+<from action="welcome" method="get">
+<from action="welcome" method="post">
+
+
+--but if we want to defined a request hanlder method to only work for a specific http method like GET or POST then we can define the method as follows:-
+
+@RequestMapping(value = "/welcome" ,method = RequestMethod.GET)
+	public String welcomeHandling() {
+		
+		//here we need to write the request processing logic 
+		//SL ----> DAL ----->DB 
+		
+		return "home";
+	}
+
+
+shortcut:-
+-------------
+ex1:- 
+
+@RequestMapping(value = "/welcome" ,method = RequestMethod.GET)
+
+or 
+
+@GetMapping("/welcome")
+
+ex2:- 
+
+@RequestMapping(value = "/welcome" ,method = RequestMethod.POST)
+
+or 
+
+@PostMapping("/welcome")
+
+
+--similarly.
+
+@PutMapping
+@DeleteMapping
+--
+--
+
+
+
+
+spring boot devtool dependency:-
+---------------------------------------
+
+
+--to avoid the recompilation and restrart the server we need to use spring boot devtool dependency.
+
+--it will automatcally recompile and redeploy our application in every changes in our application.
+
+
+--we need to add this dependency inside our pom.xml file.
+
+
+
+Note:- request handler method of the controller class (@Controller annotated class) is a very flexibale method , that means:-
+
+1. we can take any method name for this method (always recomemded to give meaningfull name), this method name does not have any singnificans.
+
+2.we can take various numbers of paramerters based on our requirement.
+
+3.for this method we can return various types of data based on our requirement(variaous types of return value including void also).
+
+
+possible parameters :-
+=================
+
+1.primitives types (int, float ,double ....)
+
+2.any class type (Employee,String,Student, any bean class )
+
+3.HttpServletRequest , HttpServletResponse, HttpSession, ServletConfig, ServletContext
+
+4.Map(I),Model(I), ModelMap(c) :- to put the processed data in request scope with a logical name.
+
+5.BindingResults/Errors class :- to handle input validation or errors
+
+
+
+	
+	Model(I)   :- mostly used parametere to keep processed data inside the request scope
+	     |
+	ModelMap(c) 
+
+
+possible return types :-
+==================
+
+1.String :- it represent  the logical name of the physical page .
+
+
+
+2.ModelAndView(c):-  it is combination of processed data (Model data ) and logical name of physical view page
+
+
+3.void :- here the request url itself will act as a logical name of physical page.
+
+ex:-
+
+@GetMapping("/hello")
+public void helloHandler(){
+
+//request processing logic
+
+}
+
+
+--here ViewResolver will resolve the destination page as "hello.jsp".
+
+
+
+
+ModelAndView:-
+---------------------
+
+-- it is combination of processed data (Model data ) and logical name of physical view page
+
+we can create ModelAndView object by various ways :-
+
+
+1. ModelAndView mv=new ModelAndView(String viewName);
+
+2. ModelAndView mv=new ModelAndView(String viewName, String label,Object processedData);
+
+3.1. ModelAndView mv=new ModelAndView(String viewName,Map<String, ? >  modelData);
+
+etc...
+
+
+Note:- processed data either we can put inside the HttpSession object, or ServeltContext object
+manually by taking them as method parameter with a logical name.
+
+
+ex:-
+
+	@GetMapping("/welcome")
+	public String welcomeHandling(HttpSession session) {
+		
+		
+		String message="Welcome to Spring MVC";
+		
+		//keeping the data in session scope
+		session.setAttribute("msg", message);
+		
+		System.out.println("inside request handling method....");
+		
+		return "home";
+	}
+	
+
+home.jsp:-
+------------
+
+<h1>Message is ${msg } </h1>
+
+
+--or we can put the processed data inside Map/Model/ModelMap obj by taking them as parameter .
+
+--or inside ModelAndView object by creating this object inside request method manually.
+
+Note:- incase of Map/Model/ModelMap/ ModelAndView , data will be in request scope.
+
+
+using Map:- keeping the processed data inside the request scope
+--------------
+
+@Controller
+public class SampleController {
+
+	
+	@GetMapping("/welcome")
+	public String welcomeHandling(Map<String, String> map) {
+		
+		String message="Welcome to Spring MVC";
+		
+		
+		//we kept the processed data by label msg inside the Map
+		//here data will be added inside the request scope
+		map.put("msg", message);
+		
+		
+		System.out.println("inside request handling method....");
+		
+		return "home";
+	}
+	
+	
+
+ex:- by using Model :- keeping processed data inside the request scope:-
+
+
+
+	@GetMapping("/welcome")
+	public String welcomeHandling(Model model) {
+		
+		String message="Welcome to Spring MVC";
+		
+		
+		//we kept the processed data by label msg inside the Map
+		//here data will be added inside the request scope
+		//keeping only one processed data
+		model.addAttribute("msg", message);
+		
+		//keeping multiple data inside the request scope.
+		
+		Map<String, String> map=new HashMap<>();
+		map.put("c1", "chennai");
+		map.put("c2", "mumbai");
+		map.put("c3", "kolkata");
+		map.put("c4", "delhi");
+		
+		model.addAllAttributes(map);
+			
+		
+		System.out.println("inside request handling method....");
+		
+		return "home";
+	}
+	
+
+ex:- by using ModelAndView to keep the processed data inside the request scope:-
+
+
+
+
+	@GetMapping("/welcome")
+	public ModelAndView welcomeHandling() {
+		
+		String message="Welcome to Spring MVC";
+		
+		
+		ModelAndView mv=new ModelAndView("home", "msg", message);
+		
+		
+		
+		System.out.println("inside request handling method....");
+		
+		return mv;
+	}
+	
+
+ex:- keep the data inside the request scope by taking HttpServletRequest as parameter.
+
+
+@GetMapping("/welcome")
+	public String welcomeHandling(HttpServletRequest request) {
+		
+		String message="Welcome to Spring MVC";
+		
+		//keeping data inside the request scope
+		request.setAttribute("msg", message);
+		
+		HttpSession session= request.getSession();
+		
+		
+		//keeping data in session scope
+		session.setAttribute("c1", "chennai");
+		
+		
+		
+		System.out.println("inside request handling method....");
+		
+		return "home";
+	}
+	
+home.jsp:-
+-----------
+
+
+<h1>Message is ${msg } </h1>   //from request scope
+
+
+<h1>Message is ${c1 } </h1>   // from session scope
+
+
+
+Note :- if we keep any data inside the ModelAndView object , and if we don't return that ModelAndView object then those data will not be available inside the request scope.
+
+
+ex:-
+
+	@GetMapping("/welcome")
+	public String welcomeHandling() {
+		
+		String message="Welcome to Spring MVC";
+		
+		
+		//if we don't return the ModelAndView object the data
+		//kept inside this object will not be avilable to the spring
+		ModelAndView mv=new ModelAndView();
+		mv.addObject("msg", message);
+		
+		
+		
+		
+		System.out.println("inside request handling method....");
+		
+		return "home";
+	}
+	
+	
+--the main goal of the request handler method is to process the data and  keep the processed data inside the request scope and return the logical name of physical page.
+
+most recomended option is :-
+
+1. String as a return type(to return the page name) + Model as a parameter (to keep the processed data in request scope)
+
+2.ModelAndView as return type. 
+
+
+Note:- if we take Map(I) or Model(I) as the parameter , then spring mvc f/w will supply the ModelMap(c) object.
+
+ 
+
+
+
+
+Handling the client data :-
+-------------------------------
+
+SampleController.java:-
+----------------------------
+
+
+@Controller
+public class SampleController {
+	
+
+	//to launch the home page
+	
+	@GetMapping("/")
+	public String homeHandler() {
+		
+		return "home";
+	}
+	
+	
+	
+	
+	//to register the student and give the response page
+	
+	@PostMapping("/studentRegister")
+	public String studentRegisterHandler(int roll,String name,int marks) {
+		
+		
+	//if the request parameter name and this method parameter names are same then spring mvc will inject the 
+	//values ..
+
+			
+		System.out.println(roll);
+		System.out.println(name);	
+		System.out.println(marks);
+	
+	
+		//fetch the data from the request 
+		//communicate with SL --->DAL----DB 
+		
+		System.out.println("inside Student Register handler..");
+		
+		return "studentRegisterSucess";
+	}
+		
+}
+
+
+home.jsp:-
+-----------
+
+<body bgcolor="pink">
+
+
+<h1 align="center">Student Registration Screen</h1>
+
+<hr/>
+
+
+
+<form action="studentRegister" method="post">
+
+Enter Roll :<input type="text" name="roll" />  <br> <br>
+Enter Name :<input type="text" name="name" />  <br> <br>
+Enter Marks :<input type="text" name="marks" />  <br> <br>
+
+<input type="submit" value="Register" />
+
+
+</form>
+
+</body>
+
+
+
+Note:- incase ,we have different name inside the request handler method parameter (other that request parameter name)then we need to use @RequestParam annotation.
+
+ex:-
+
+
+
+	@PostMapping("/studentRegister")
+	public ModelAndView studentRegisterHandler(@RequestParam("roll")Integer r,
+					  @RequestParam("name")String n,
+					@RequestParam("marks")Integer m) {
+		
+		
+		ModelAndView mv=new ModelAndView("studentRegisterSucess");
+		
+		mv.addObject("rl", r);
+		mv.addObject("nm", n);
+		mv.addObject("mr", m);
+		
+	
+		
+		//communicate with SL --->DAL----DB 
+		
+		System.out.println("inside Student Register handler..");
+		
+		return mv;
+	}
+	
+	
+
+
+Path parameter :-
+=============
+
+--it the data we send from the client without any logical name , with the help of uri 
+
+ex;-
+
+http://localhost:7000/registerStudent?roll=123&name=ram     :- it is called request parameters  (2 request parameters) 
+?roll=123&name=ram  --is called query string , ..here data having a logical name.
+
+
+http://localhost:7000/registerStudent/10/ram/500   :- here 3 path parameters are there ...
+
+Note:- in the traditional servlet and jsp there is no any proper method support to access the path parameters ,but in spring mvc we can access the path parameters and can inject it in the request handler method by using @PathVariable annotation.
+
+
+ex:-
+
+home.jsp:-
+------------
+
+
+<a href="studentRegister/20/ramesh/500">Click here </a>
+
+
+
+SampleController.java:-
+------------------------------
+
+	
+	
+	@GetMapping("/studentRegister/{roll}/{name}/{marks}")
+	public ModelAndView studentRegisterHandler(@PathVariable("roll")Integer r,
+					@PathVariable("name")String n,
+					@PathVariable("marks")Integer m) {
+		
+		
+		ModelAndView mv=new ModelAndView("studentRegisterSucess");
+		
+		mv.addObject("rl", r);
+		mv.addObject("nm", n);
+		mv.addObject("mr", m);
+		
+	
+		//fetch the data from the request 
+		//communicate with SL --->DAL----DB 
+		
+		System.out.println("inside Student Register handler..");
+		
+		return mv;
+	}
+
+
+
+Note:- if we take any bean class as a request handler method parameter and if that bean class variables names and the request parameter names are same then spring-mvc f/w will create the bean class object and populate the bean field value and pass that object to the request handler method.
+
+
+ex:-
+
+
+
+home.jsp:-
+------------
+
+<form action="studentRegister" method="post">
+
+Enter Roll :<input type="text" name="roll" />  <br> <br>
+Enter Name :<input type="text" name="name" />  <br> <br>
+Enter Marks :<input type="text" name="marks2" />  <br> <br>
+
+<input type="submit" value="Register" />
+
+
+</form>
+
+
+SampleController.java:-
+----------------------------
+
+
+@Controller
+public class SampleController {
+	
+	
+	@Autowired
+	private StudentDao dao;
+	
+	
+	@GetMapping("/")
+	public String homeHandler() {
+		
+		return "home";
+	}
+	
+		
+	@PostMapping("/studentRegister")
+	public ModelAndView studentRegisterHandler(StudentBean student) {
+		
+		
+		String result= dao.registerStudent(student);
+			
+		ModelAndView mv=new ModelAndView("studentRegisterSucess");
+		
+		mv.addObject("resultData", result);
+	
+		
+	
+		//fetch the data from the request 
+		//communicate with SL --->DAL----DB 
+		
+		System.out.println("inside Student Register handler..");
+		
+		return mv;
+	}
+	
+}
+	
+
+assignment:-
+----------------
+
+home.jsp:-
+------------
+
+<body>
+
+<a href="launchStudentRegistration">Register Student</a> <br><br>
+
+<a href="getAllStudents" >Get All Student Details</a> <br><br>
+
+
+
+</body>
+
+
+
+SampleController:-
+-----------------------
+
+
+@Controller
+public class SampleController {
+	
+	
+	@Autowired
+	private StudentDao dao;
+	
+	
+	@GetMapping("/")
+	public String homeHandler() {
+		
+		return "home";
+	}
+	
+	
+	
+	
+	@GetMapping("/launchStudentRegistration")
+	public String launchStudentRegistrationHandler() {
+		
+		return "studentRegistrationForm";
+	}
+	
+	
+	
+	
+	
+	@PostMapping("/studentRegister")
+	public ModelAndView studentRegisterHandler(StudentBean student) {
+		
+		
+		
+		
+		String result= dao.insertStudentDetails2(student);
+		
+		
+		
+		
+		ModelAndView mv=new ModelAndView("studentRegisterSucess");
+		
+		mv.addObject("resultData", result);
+	
+		
+	
+		//fetch the data from the request 
+		//communicate with SL --->DAL----DB 
+		
+		System.out.println("inside Student Register handler..");
+		
+		return mv;
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

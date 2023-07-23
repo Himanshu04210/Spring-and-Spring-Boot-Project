@@ -1,0 +1,973 @@
+<init-param>:-
+------------------
+
+--with this tag we can supply some set of textual data to a perticular servlet from the outside. through the web.xml file.
+
+
+--if we want to supply some textual infornation to not just only one servlet but to all the servlet of our project then we need to use <context-param> tag.
+
+--we can supply data to a servelt from outside by 3 ways:-
+
+1.by usine request parameter (from the web-browser)(from http/web client) ex:- either by using "GET", "POST"method(other http methods are also there).
+
+
+2.by using init parameters (from web.xml file)
+
+3.by using context parameters (from web.xml file)
+
+
+--request parameter data will be encapsulated inside the "ServletRequest" object and we access these data by calling 
+
+request.getParameter(-) method.
+
+
+--init parameter data will be encapsulated inside the "ServletConfig" object and we access these data by calling 
+
+config.getInitParameter(-) method.
+
+
+
+--context parameters will be encapsulated inside the "ServletContext" object and we access these data by calling 
+
+context.getInitParameter(-) method.
+
+
+passing context-param data to all the servlets:-
+-------------------------------------------------------
+
+web.xml:-
+------------
+
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" version="4.0">
+  <display-name>servletapp2</display-name>
+ 
+ 
+ <context-param>
+ 
+ 	<param-name>Emp_Name</param-name>
+ 	<param-value>Ram</param-value>
+ </context-param>
+ 
+ <context-param>
+ 	<param-name>Emp_Address</param-name>
+ 	<param-value>Delhi</param-value>
+ </context-param>
+ 
+ 
+ 
+ 
+ 
+ 
+  
+	  <servlet>
+  		<servlet-name>s1</servlet-name>
+  		<servlet-class>com.ratan.Srv1</servlet-class>
+  	</servlet>
+  
+  
+  	<servlet>
+  		<servlet-name>s2</servlet-name>
+  		<servlet-class>com.ratan.Srv2</servlet-class>	
+  	</servlet>
+  
+
+	<servlet-mapping>
+
+		<servlet-name>s1</servlet-name>
+		<url-pattern>/first</url-pattern>
+	</servlet-mapping>  
+
+	<servlet-mapping>
+
+		<servlet-name>s2</servlet-name>
+		<url-pattern>/second</url-pattern>
+	</servlet-mapping>  
+  
+  
+  
+</web-app>
+
+
+
+Note:- init parameter is for one servlet , and context param for all the servlets 
+
+
+--in order to get the context parameter value , we need the "ServletContext" object.
+
+--we get this "ServletContext" object from the "ServletConfig" object by calling 
+
+config.getServletContext() method.
+
+
+ex:-
+
+ServletContext ctx=  config.getServletContext();
+
+
+ex:-
+
+
+Srv1.java:-
+--------------
+
+package com.ratan;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
+public class Srv1 implements Servlet {
+
+	private ServletConfig config;
+	
+	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ServletConfig getServletConfig() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getServletInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		this.config=config;
+		
+	}
+
+	@Override
+	public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+		
+		
+		response.setContentType("text/html");
+		PrintWriter pw= response.getWriter();
+		
+		
+		ServletContext ctx= config.getServletContext();
+		
+		
+		String name= ctx.getInitParameter("Emp_Name");
+		String address= ctx.getInitParameter("Emp_Address");
+		
+		
+		pw.print("<h1>Welcome to Servlet</h1>");
+		pw.print("<h2>Name is : "+name+"</h2>");
+		pw.print("<h2>Address is : "+address+"</h2>");
+		
+		
+		
+		pw.close();
+		
+		
+	}
+
+}
+
+
+
+Srv2.java:-
+------------
+
+package com.ratan;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
+public class Srv2 implements Servlet {
+
+	private ServletConfig config;
+	
+	
+	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ServletConfig getServletConfig() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getServletInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		this.config=config;
+		
+	}
+
+	@Override
+	public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+		
+		response.setContentType("text/html");
+		PrintWriter pw = response.getWriter();
+		
+		
+
+		ServletContext ctx= config.getServletContext();
+		
+		
+		String name= ctx.getInitParameter("Emp_Name");
+		String address= ctx.getInitParameter("Emp_Address");
+		
+		
+		pw.print("<h1>From the Servlet 2 </h1>");
+		pw.print("<h2>Name is : "+name+"</h2>");
+		pw.print("<h2>Address is : "+address+"</h2>");
+		
+		
+		
+		
+		
+	}
+	
+}
+
+
+web.xml:-
+------------
+
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" version="4.0">
+  <display-name>servletapp2</display-name>
+ 
+ 
+ <context-param>
+ 
+ 	<param-name>Emp_Name</param-name>
+ 	<param-value>Ram</param-value>
+ </context-param>
+ 
+ <context-param>
+ 	<param-name>Emp_Address</param-name>
+ 	<param-value>Delhi</param-value>
+ </context-param>
+ 
+ 
+ 
+ 
+ 
+ 
+  
+  <servlet>
+  		<servlet-name>s1</servlet-name>
+  		<servlet-class>com.ratan.Srv1</servlet-class>
+  </servlet>
+  
+  
+  <servlet>
+  	<servlet-name>s2</servlet-name>
+  	<servlet-class>com.ratan.Srv2</servlet-class>	
+  </servlet>
+  
+  
+  
+  
+  
+  
+  
+
+<servlet-mapping>
+
+<servlet-name>s1</servlet-name>
+<url-pattern>/first</url-pattern>
+</servlet-mapping>  
+
+
+
+
+
+<servlet-mapping>
+
+<servlet-name>s2</servlet-name>
+<url-pattern>/second</url-pattern>
+</servlet-mapping>  
+  
+ 
+</web-app>
+
+Note:- 
+
+ServletRequest
+ServletResponse
+ServletConfig
+ServletContext
+
+--these all 4 object will be created by the container.
+
+ServletConfig:- it will be created at the time of calling first life-cycle method i.e init() method.in this object 2 major information is encapsulated 1. initial configuration info and 2 context information
+
+
+ServletRequest, ServletResponse:- at the time of calling 2nd life-cycle method i.e service(--) method
+
+ServletContext :- it will be created at the time of when we deploy our application on the webserver. this object will represnt enrite application. it is the first object created by container. and its refference will be incapsulated into the serveltConfig object of each servlet.
+
+
+ServletConfig :- one per Servlet
+
+ServletContext :- one per Application
+
+ServeltRequest, ServeltResponse :- one per request by the client.(for each request)
+
+
+
+Note:- in  a web application there can be  n number of servlets can be there , for each servelt container creates ServletConfig object, and each config object holds the reference of the same ServeltContext object refference.
+
+
+
+GenericServlet class:-
+================
+
+--this class has simplified the servlet application development for the programmer.
+
+--it is the implementation class of Servlet interface, which overrides all the methods of servlet interface except service(--) method.
+
+--this GenericSerlvet class is an abstract class.becoz it does not override service(--) method.
+
+
+Note:- GenericServlet class also implmenents ServletConfig interface.hence all the methods of the ServletConfig we can access without any reffernece inside the GenericServlet class.
+
+
+ex:-
+
+
+public class GenericServlet implements Servlet,ServletConfig{
+
+-- methods of Servlet interface except the service(--) method  4 
+-- methods of  ServletConfig interface   10
+
+
+}
+
+
+ex:-
+
+
+Srv3.java:-
+-------------
+
+
+public class Srv3 extends GenericServlet {
+	
+	
+	@Override
+	public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+	
+		
+		response.setContentType("text/html");
+		PrintWriter pw = response.getWriter();
+		
+		//here we r calling getServletContext() method without any refenrence 
+		ServletContext ctx= getServletContext();
+		
+		
+		String name= ctx.getInitParameter("Emp_Name");
+		String address= ctx.getInitParameter("Emp_Address");
+		
+		
+		pw.print("<h1>From the Servlet 2 </h1>");
+		pw.print("<h2>Name is : "+name+"</h2>");
+		pw.print("<h2>Address is : "+address+"</h2>");
+		
+		
+	}
+
+}
+
+ 
+
+Note:- if we are using GenericServlet class to develop a service side application, and if we requere to use any initialization logic like DB connection creation then we need to use zero argument init() method.
+
+--this zero argument init() method is not a life-cycle method of servlet, it is a helper method.
+
+ex:-
+
+public void init(){
+
+}
+
+
+--it is always recomended to use zero argument init method , if we are developing our application using GenericServlet class.
+
+
+how zero argument init() method will be called:-
+---------------------------------------------------------
+
+--GenericServlet class having 2 init() methods :-
+
+1.parameterized (init(ServletConfig config)) ;// life-cycle method.
+
+2.zero argument init method(init() )  // it is not a life-cycle method , it is a helper method.
+
+
+
+ex:-
+
+GenericServlet class sudo code:-
+------------------------------------
+
+
+
+public class GenericServlet implements Servlet,ServletConfig{
+
+private ServletConfig config;
+
+public void init(ServletConfig config){
+this.config=config;
+
+init();
+
+}
+
+
+public void init(){
+
+//empty body
+}
+
+// all other method from Servlet and ServletConfig
+
+}
+
+
+--here parameterized init(-) method is doing 2 things :-
+
+1. it is assigning container given ServletConfig object to its instance variable i.e "this.config=config"
+
+2. it is calling zero argument init() method.
+
+
+--this zero argument init() method is empty body, it is always recomended to use zero argument init() method inside our class, this zero arguemnt init() method will be called by the container indirectly using parameterzied init(-) life-cycle method.
+
+
+
+----get the google support .....
+
+
+
+HttpServlet :-
+----------------
+
+--a servlet is classified into 2 categories :-
+
+1.protocol independent servlet 
+
+2.protocol dependent servlet
+
+**super class having the generalized faeture and child class having the specialized features.
+
+
+--"javax.servlet.GenericServlet" class is a protocol independent servlet.
+
+-- a servlet is mean for not only to support http protocol, but to support other protocols also like tcp, ftp, smtp,etc.
+
+--dynamic content generation is required not only for the http but for other protocol also,
+
+
+--if a servlet is a protocol independent, then can not support some of the powerfull feature of http protocol, i.e http session obj , cookies, url rewriting, etc, without which no commercial webapplication servive.
+
+
+--therfore user defined servlet should not be protocol independent servlet in order to develop a commercial webapplication.
+
+javax.servlet.http.HttpServlet is a protocol dependent servlet.
+
+
+
+--it is recomendend that our servlet class should inherit from HttpServlet class always , and write the dynamic page generatation logic inside the doGet(--) or doPost(--) method of HttpServlet class.
+
+--this HttpServlet class is the child of GenericServlet class .it does override the service(--) also and provides 2 helper methods doGet(--) and doPost(--)
+
+--when the client request method is GET :- doGet(--)
+--when the client request method is POST :- doPost(--)
+
+
+****HttpServlet class does not have any abstract method, but still this HttpServlet class is an abstract class.
+
+
+protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
+
+here the parameters is HttpServletRequest(I) and HttpServletResponse(I).
+
+--"HttpServletRequest" is an child interface of "ServletRequest".
+
+--"HttpServletResponse" is an child interface of "ServletResponse" interface
+
+
+--this HttpServlet class contains 2 service method and 7 doXXX(--) methods.
+
+1.public void service(ServletRequest req,ServletResponse reps)   // 2nd lifecycle method 
+
+2.protected void service(HttpServletRequest hreq , HttpServletResponse hres);
+
+
+
+
+
+7 doXXX():- http protocol has 7 methods methods are there, from the browser we generate mostly 2 methods i.e Get and Post. for Get :- doGet(--) and for post -- doPost(--)
+
+doGet(HttpServletRequest req, HttpServletResponse resp)
+doPost(HttpServletRequest req, HttpServletResponse resp)
+doPut(HttpServletRequest req, HttpServletResponse resp)
+doDelete(HttpServletRequest req, HttpServletResponse resp)
+doHead(HttpServletRequest req, HttpServletResponse resp)
+doTrace(HttpServletRequest req, HttpServletResponse resp)
+doOptions(HttpServletRequest req, HttpServletResponse resp)
+
+
+ex:-
+
+
+Srv4.java:-
+------------
+
+
+public class Srv4 extends HttpServlet{
+	
+	
+	@Override
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	
+		response.setContentType("text/html");
+		PrintWriter pw=  response.getWriter();
+	
+	pw.print("<h1>Welcome from HttpServlet</h1>");
+		
+		
+		
+	}
+	
+}
+
+
+	
+Note:- all the doXXX(--) and protected service(--) methods are not the life-cycle methods, they are the helper methods which will called by the container indirectly through the life-cycle methods.
+
+
+ex:-
+
+
+sudo code for HttpServlet class:-
+-------------------------------------
+
+package javax.servlet.http;
+
+public abstract class HttpServlet extends GenericServlet{
+
+//life-cycle service method
+1. public void service(ServletRequest req , ServletResponse res){
+
+//this service method will convert the normal ServletRequest and ServletResponse to the HttpServletRequest and //HttpServlet Response by downcasting ex:-
+
+HttpServletRequest hreq = (HttpServletRequest)req;
+HttpServletResponse hres= (HttpServletResponse)res;
+
+//and then it will call the protected service method of its own class by passing these object reff.ex:-
+
+service(hreq, hres);
+
+}
+
+//it is not a life-cycle method
+2.protected void service(HttpServletRequest hreq , HttpServletResponse hres){
+
+//this method will check the http request method (which type of method is comming from the client)
+if(method == GET){
+doGet(hreq,hres);
+}
+
+if(method == Post){
+doPost(hreq,hres);
+}
+
+//....
+
+
+}
+
+//it is also not a life-cycle method
+7.protected void doXXX(HttpServletRequest hreq, HttpServletResponse hres){
+
+//empty body
+
+}
+
+}
+
+ 
+
+--to make a servlet flexible i.e it should work for both GET and POST request:-
+--------------------------------------------------------------------------------------------	
+
+--write all the page generation logic inside any one method (doGet or doPost method) and call one from another.
+
+
+--creating Servlet by using annotation :-
+-----------------------------------------------
+
+--from the servlet 3.x onwards we can create a webapplication without using web.xml file i.e by using annotations 
+@WebServlet.
+
+
+interservlet communication:- (servlet chaining)
+=======================
+
+
+--in this one servlet delegates the request processing duty to another servlet.
+
+--interservlet communication is implemented to attend the complex client request.
+
+--we achieve the interservlet communication by using "RequestDispatcher(I)" object.
+
+--by calling getRequestDispatcher(-) method on the request(HttpServletRequest) object , supplying other servlet url name  with slash(/) we get the RD object.
+
+ex:-
+
+
+RequestDispatcher rd=  request.getRequestDispatcher("/Srv2");
+
+
+--after getting the RD object we need to disptach the request to other servlet by either calling forward(--) method or include(--) method on the RD object by supplying request and response object ex:-
+
+
+rd.forward(request,response);:- forwarding the request
+
+rd.include(request,response);  :- including the response.
+
+
+rd.forward(request,response);:- forwarding the request:-
+--------------------------------------------------------------------
+
+--here first servlet recieves the client request, does some portion of the request processing, and for remaining portion of processing sake it delegates the request processing duty to the second servlet.
+
+--second servlet preforms the remianing portion of the processing 
+
+--second servlet is only reponsible to build the repsonse page and send to the client.
+
+
+
+rd.include(request,response);  :- including the response.:-
+------------------------------------------------------------------
+
+--here first servlet performs as same as rd.roward(--).
+
+--second servlet performs the remaining portion of the processing .
+
+--after processing it returns the control to the first servlet.
+
+--output page logic of second servlet in included in the first servlet at the place where rd.include(--) method is called .
+
+--here first servlet is only responsible to the produce the response page and send it to the client via server.
+
+
+Note:- Generally in the servlet only forward(--) mechanism is used and in jsp include(--) mechanism is used.
+
+--in the interservlet communication , both the servlet will be in same request response cycle.
+
+
+
+
+
+
+Servlet Collaboration:-
+=================
+
+
+--one servlet assisting other servlet is nothing but servlet collaboration.
+
+--servlet collaboration is achieved in 2 ways :-
+
+1.by sharing the control
+
+2.by sharing the data
+
+
+--through the interservlet communication sharing control is possible.
+
+--one servlet store its data in some shared memory location ,from which other servlet have access , this is known as one servlet collaborating with other servlet by sharing data.
+
+shared memory location or scope of data :-
+================================
+
+-- in servlet programming we have 3 shared memory locations are there :-
+
+1.request scope :- the data which is kept in "HttpServletRequest" object with a unique name , is known as request scoped data , 
+
+--these data will be available to only those servlets which are participating in one req-response cycle.
+(to only those servlet to which req is forwared or included).
+
+
+2.session scope:- the data which is kept in "HttpSession" object with a unque name , is known as session scoped data .
+
+--these data will be avialable to only those servlets which are participating in perticular session.
+
+Note:- multiple servlets participating in a session need not communicate each other.(they may not be in a same req-response cycle).
+
+
+3.application scope:- the data which kept is "ServletContext" with a unique name is known as application scoped data, 
+
+--these data will be available to all the servlets of a application.
+
+Note:- this application scope is also known as "global scope".
+
+
+--to get the ServletContext object :-
+
+ServletContext context =  getServletContext();
+
+
+--to get the HttpSession object :-
+
+
+HttpSession session =  request.getSession();
+
+
+methods to deal with scoped data :-
+------------------------------------------
+
+--basically we use following  3 methods , which are common for all the 3 scoped objects(HttpServletRequest,HttpSession,ServletContext) :-
+
+
+1.public void setAttribute(String name, Object data);
+
+2.public Object getAttribute(String name);  //if with this name data is not there then it will return null value
+
+3.public void removeAttribute(String name);
+
+
+
+ex:-
+
+
+index.html:-
+--------------
+
+
+<body bgcolor="cyan">
+
+
+<h1 align="center">Input Screen </h1>
+
+<hr/>
+
+<form action="Srv1" method="post">
+
+Enter Number 1 :<input type="text" name="num1" /> <br><br>
+
+Enter Number 2  :<input type="text" name="num2" /> <br><br>
+
+
+
+<input type="submit"  value="Get Result">
+
+
+</form>
+
+</body>
+
+
+Srv1.java:-
+-----------
+
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		//get the data from the client
+			String snum1= request.getParameter("num1");
+			String snum2= request.getParameter("num2");
+			
+			//convert that data into appropriate type
+		 int n1 = Integer.parseInt(snum1);
+		 int n2 = Integer.parseInt(snum2);
+				
+		 //processed the data 
+		 int result = n1+n2;
+		 
+		 
+		 //kept the data in the request scope
+		 request.setAttribute("myresult", result);
+		 
+		 
+		 
+		 //forward the control to the second servlet
+		// RequestDispatcher rd= request.getRequestDispatcher("/Srv2");
+		// rd.forward(request, response);
+			
+		 request.getRequestDispatcher("/Srv2").forward(request, response);
+			
+			
+			
+	}
+
+
+Srv2.java:-
+-----------
+
+protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	
+	
+		//get the data from the request scope
+		Object obj= request.getAttribute("myresult");
+		int data= (Integer)obj;
+		
+		String snum1= request.getParameter("num1");
+		String snum2= request.getParameter("num2");
+		
+		response.setContentType("text/html");
+		PrintWriter pw=  response.getWriter();
+		
+		
+		pw.print("<h1>The Result is :"+data+"</h1>");
+		
+			
+	}	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

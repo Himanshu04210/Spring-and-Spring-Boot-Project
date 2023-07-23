@@ -1,0 +1,1050 @@
+public void sendRedirect(String url)throws IOException  method:-
+------------------------------------------------------------------
+
+
+--this method belongs from HttpServletResponse object.
+
+--this method generates a response status code 302 and sends the supplied URL to client(browser) , browser uses that status code and generates (redirects ) a fresh/new request to the supplied URL.
+
+ex:-
+
+
+response.sendRedirect("Srv2"); // here same request -response cycle is not there
+
+
+--we can not use RequestDispatcher object to communicate between 2 servlets that are available in 2 different server.
+but with the sendRedirect() method , it is possible.
+
+Note:- supplied URL can be any web-resource program developed in any technology, like .net,php,java,html etc...
+
+
+ex:-
+
+
+		//absolute url
+		//response.sendRedirect("http://localhost:8082/interservletApp1/Srv2");	
+		 
+		 //realtive url
+		 response.sendRedirect("Srv2");
+			
+ex:-
+
+response.sendRedirect("https://www.google.com");
+
+
+
+
+Srv1.java:-
+--------------
+
+ 
+		 //getting the session object
+		 HttpSession session =  request.getSession(); 
+		 
+		 //keeping the data in session scope
+		 session.setAttribute("myresult", result);
+		 
+		response.sendRedirect("Srv2");
+
+Srv2.java:-
+-------------
+
+		//getting the session object
+		HttpSession session = request.getSession();
+		
+		//fetching the data from the session scope
+		Object obj= session.getAttribute("myresult");
+			
+		
+		int data= (Integer)obj;
+		
+	
+		
+		response.setContentType("text/html");
+		PrintWriter pw=  response.getWriter();
+		
+		
+		pw.print("<h1>The Result is :"+data+"</h1>");
+
+
+
+
+JSP :-
+=====
+
+java server page:- 
+
+--JSP is a technology used to create web-application (dynamic web-pages) just like servlet technology.
+
+--JSP is also a sub-specification of J2EE specification to develop "jsp-page compiler s/w" .
+
+--JSP allows tag based programming..
+
+
+A jsp :-
+-------- 
+
+--a jsp is also a web-component or dynamic web-resource program which will generate a dynamic web-page.
+
+--it is a html file only with .jsp extension in which we can write java code.
+
+--A jsp file contains template text (normal text + html tags) + jsp tags.
+
+--inside these jsp tags we can write our java code.
+
+
+Note:- jsp allows to work with all the features of the servlet becoz for every jsp , an equivallent servlet will be generated  dynamically by the jsp page compiler s/w.
+
+
+
+--in the process of executing a jsp file there will be 2 phases:-
+
+1.translation phase 
+
+2.request processing phase
+
+
+1.translation phase :-
+
+--in this phase , there will be a page compiler s/w developed according to the JSP specification, which will convert a jsp file into its equivallent servlet source code.
+
+--then from the servlet source code ,java compiler gives a .class file of that jsp equivallent servlet.
+
+	page compiler s/w			 java compiler
+a.jsp ------------------------------------> a_jsp.java-------------------------------------->a_jsp.class
+
+--there are 3 life-cycle methods are also available in this jsp equivalent servlet:-
+
+1.jspInit()
+
+2._jspService(Hsreq, Hsres)
+
+3.jspDestroy()
+
+
+2.request processing phase :-
+----------------------------------
+
+--in this phase _jspService(--) method of the jsp equivallent servlet will be executed and generated output goes to the client.
+
+
+Note:- translation phase happen only first time when we give the request to a jsp file , second request onwards if we don't change anything in the jsp file then translation phase will be skipped , and only request processing phase will happens.
+
+
+location of a jsp file in our application:-
+----------------------------------------------
+
+--we can place a jsp file in 2 places :-
+
+1.inside the webapp/ WebContent folder ,i.e along with html files.
+
+Note:- jsp placed inside webapp folder is known as public jsp file , we can directly give the request to a jsp file.
+
+2.inside WEB-INF folder :- 
+
+--the jsp placed inside the WEB-INF folder is known as private jsp file, client need to give the request to these jsp file by using url pattern specified in web.xml file.
+
+
+ex:- place a1.jsp file inside WEB-INF folder 
+
+
+ <servlet>
+ 	<servlet-name>a1</servlet-name>
+ 	<jsp-file>/WEB-INF/a1.jsp</jsp-file> 
+</servlet>
+ 
+<servlet-mapping>
+
+ 	<servlet-name>a1</servlet-name>
+	<url-pattern>/first</url-pattern>
+
+</servlet-mapping> 
+ 
+ 
+
+Note:- html tags and attributes are the case insensetve where as jsp tags and attributes are case sensetive.
+
+
+
+--there are 2 types of objects are there in jsp programming :-
+
+1.implicit objects 
+
+2.Explicit or user-defined object
+
+
+1.implicit objects :-
+==============
+
+--all the implicit objects are well instantiated and readymade available in jsp programming, so programmer can use these objects in jsp , without creating them explicitly or without writing any code to access them.
+
+
+1.request (HttpServletRequest)
+
+2.response (HttpServletResponse)
+
+3.session  (HttpSession)
+
+4.config (ServletConfig)
+
+5.application (ServletContext)
+
+6.out (JspWriter  .. // it is simillar to PrintWriter used to send the output)
+
+7.page // it represnt the current class object (page compiler converted servlet class) //simillar to 'this' keyword
+
+8.pageContext // it represents the entire env of the jsp page, this obj encapsulate all other implicit objects 
+		// ex:-   HttpServletRequest request =   pageContext.getRequest();
+
+9.exception   // Throwable 
+
+
+Note:- in the above list first 8 implicit objects will be available to all the jsp pages by default, where as the 9th object i.e exception , is available to only "exception handler jsp pages"  (the page which are configured as ErrorPage.) 
+
+ 
+
+Explicit object :-
+-------------------
+
+programmer created objects :-
+
+ex:-
+
+List<String> list = new ArrayList<>();
+
+Employee emp=new Employee();
+LocalDate ld=LocalDate.now();
+
+
+there 4 types of tags are there in the jsp programming :-
+
+1.scripting tags 
+
+2.jsp comment tag
+
+3.directive tags 
+
+4.action tags
+
+
+
+1.scripting tags :-
+=============
+
+--these tags are given to place java code inside a jsp file.
+
+--this tag is furthur divided into 3 category:-
+
+a. scriptlet :- <%    -----    %>  :-
+-------------------------------------
+
+--java code placed inside the scriplet goes to the _jspService(--) of the jsp equivallent servlet.
+
+--variables declared inside this tag will act as a local variable of _jspService(--)..
+
+--we can not define a user defined method inside this tag, (java does not support nested method defination)
+
+--in one jsp file we can place multiple scriptlet tags, the code placed inside these tags goes to the _jspService(--) method only one by one.
+
+
+Note:- generally we place request processing logic and response page generatation logic inside this scriptlet tag.
+
+
+--all the implicit objects we can utilized inside this tag.
+
+
+b.declaration tag:- <%!       %> :-
+----------------------------------------
+
+--this tag is used to declare instance variable or to define user-defined methods.
+
+--code define inside this tag will become the member of the jsp equivallent servlet.
+
+
+
+Note:- inoder to place 2 other life-cycle methods having initialization and uninitialization logics we need to take the support of declaration tag.
+
+
+Note:- inside this tag implicit objects are not available .
+
+
+c.expression tag:- <%=   %>:-
+----------------------------------
+
+--this tag is given to evaluate the given expression and to send the generated result to the browser as response directly.
+
+--this tag is also known as utility tag.
+
+--the code placed inside the expression tag comes under the _jspService(--) method only so all the implicit objects are also available here.
+
+ex:-
+
+<% !     int x=10;  
+
+public int sum(int x,int y){
+return x+y;
+}
+
+
+ %>
+
+<h2>The value of x is : <%= x %></h2>
+
+
+<h2>The Result is  : <%= sum(10,20);  %></h2>
+
+--expression tag can evaluate only one expression at a time ex:-
+
+<h2>The Result is  : <%= 50+80   9+20 %></h2>   //CE
+
+--in jsp ,we can utilize an expression tag multiple times.
+
+
+
+****Note:- we can not nest one tag inside another tag. it will give an error.
+
+
+ex:-
+
+
+index.jsp:-
+------------
+
+
+<form action="a.jsp" method="post">
+
+Enter Number 1 :<input type="text" name="num1" /> <br><br>
+
+Enter Number 2  :<input type="text" name="num2" /> <br><br>
+
+
+
+<input type="submit"  value="Get Result">
+
+
+</form>
+
+
+a.jsp:-
+--------
+
+<body bgcolor="red">
+
+<h1>Welcome to JSP</h1>
+
+<% 
+
+	String snum1= request.getParameter("num1");
+	String snum2= request.getParameter("num2");
+	
+	int n1= Integer.parseInt(snum1);
+	int n2= Integer.parseInt(snum2);
+
+	//int result = n1+n2;
+	
+	//out.print("<h1>The Result is"+result+"</h1>");
+	
+	
+%>
+
+<h1>The Result is :<%= n1+n2 %></h1>
+
+</body>
+
+
+
+ex2:- printing the List items in a table :-
+-----------------------------------------------
+
+index.jsp:-
+-----------
+
+
+<%
+
+ List<Student> students= new ArrayList<Student>();
+
+	students.add(new Student(10,"Ram",850));
+	students.add(new Student(12,"Amit",750));
+	students.add(new Student(14,"Ravi",650));
+	students.add(new Student(15,"Ramesh",450));
+	
+	
+	request.setAttribute("studentList", students);
+
+	request.getRequestDispatcher("a.jsp").forward(request,response);
+	
+	
+%>
+
+
+
+a.jsp:-
+--------
+
+
+<body bgcolor="red">
+
+<h1>Welcome to JSP</h1>
+
+<% 
+
+	Object obj= request.getAttribute("studentList");
+
+	List<Student> students= (List<Student>)obj;
+	
+%>
+
+
+
+	<table align ="center">
+	
+		<tr> 
+			<th>Roll</th>
+			<th>Name</th>
+			<th>Marks</th>
+		</tr>
+		
+		<%
+			for(Student student:students){
+		
+		%>
+		
+		<tr> 
+			<td><%=student.getRoll() %></td>
+			<td><%=student.getName() %></td>
+			<td><%=student.getMarks() %></td>
+		</tr>
+					
+		
+		
+		
+		
+		<%} %>
+		
+	
+	</table>
+
+</body>
+
+
+
+
+2.jsp comment tag:-
+------------------------
+
+<%--          --%>
+
+--code placed inside the comment tag will be ignored by the page compiler s/w.
+
+html comment tags is :-
+
+	<!--      -->
+
+
+3.Directive tags :-
+=============
+
+--these tags are given to direct or guide the page compiler s/w or to provide the global information
+to the page compiler s/w while compiling jsp to its equivallent servlet code,
+
+syntax:-
+
+<%@     %>
+
+--these directive tags are also 3 types :-
+
+1.page directive
+
+2.include directive
+
+3.taglib directive
+
+
+
+1.page directive:-
+-------------------
+
+syntax:- <%@ page      %> 
+
+--it is used to provide the global details/ information to the jsp page compiler s/w 
+
+some of the attributes of this page directive tag are:-
+
+import ="java.util.ArrayList";
+
+language ="java"
+
+contentType ="text/html"
+
+session = "true"   // if we change as false , then this jsp page will not participate in session tracking
+		// HttpSession object will not work
+
+errorPage = "to configure any error page"
+
+isErrorPage = "false "   // if we make it true then we mark a jsp page as error handler page (here 9th implicit object i.e exception will be available)
+
+isELIgnored ="false" // if we make it as true then jsp expression language will be ignored .(will not be evaluated)
+
+
+b.include directive:-
+------------------------
+
+syntax:-
+
+<%@include  file="a.html"  %> 
+
+<%@include  file="a.jsp"  %> 
+
+
+--this tag includes the code of destination web-resource in the jsp equivallent servlet code.
+
+--this tag is also known as static include tag.
+
+
+a.jsp:-
+----------
+
+<%@include  file="b.jsp"  %> 
+
+--here included jsp file will not be executed, i.e its servlet will not be generated.
+
+--in above example only for a.jsp , servlet file will be created.
+
+--it is recomended to use when the destination resource is a static resource like a html file,image file etc...
+
+
+c. taglib directive:-
+-----------------------
+
+syntax:- 
+
+<%@taglib  prefix=""  uri="" %>
+
+
+--this directive tag is used to import the custom jsp tags or 3rd party f/w software supplied jsp tags in our jsp program.
+
+
+
+4.Action tags :-
+===========
+
+--by using these tags we give runtime instrcutions to the page compiler s/w.
+
+--thier syntax is like a xml type of syntax
+
+--business logics can coded in the action tag and can become reusable 
+some of the standard action tags are:-
+
+
+
+1.<jsp:forward  page="b.jsp"/>   // it is simmilar to rd.forward(--) in servlet
+
+2.<jsp:include page="b.jsp" /> // it is the dynamic include, i.e output of the b.jsp will be included.
+
+--it is recomended to use then the destination resource is a dynamic web-resource.ex:- jsp file
+
+
+3.<jsp:useBean>
+<jsp:setProperty>
+<jsp:getProperty>
+
+--these action tags are used to communicate/simplyfy the  bean class access.
+
+
+
+Jsp EL (Expression Language):-
+-------------------------------------
+syntax:-
+
+${exp} 
+
+
+-it also evaluates certain expression and render the given result to the browser directly.
+
+--EL simplifies the accessebility of the data stored in the java bean classes and other objects like 
+request,session,application, 
+
+--there are many implicit objects , operators and reserved words are there in EL.
+
+some of the implicit objects in EL is :-
+
+
+1.param  :- request parameters
+
+2.requestScope :-  
+
+3.sessionScope :-
+
+4.applicationScope 
+
+5.header 
+
+6.cookie 
+
+etc..
+
+ex:-
+
+index.jsp:-
+-----------
+
+
+<form action="a1.jsp" method="post">
+
+Enter Name : <input type="text" name="nm" />
+
+<input type="submit" value="Click">
+
+
+a1.jsp:-
+--------
+
+<h1>Welcome to jsp</h1>
+
+<h1>Welcome ${param.nm } </h1>
+
+
+ex:-
+
+
+index.jsp:-
+-------------
+
+
+<%
+
+ List<Student> students= new ArrayList<Student>();
+
+	students.add(new Student(10,"Ram",850));
+	students.add(new Student(12,"Amit",750));
+	students.add(new Student(14,"Ravi",650));
+	students.add(new Student(15,"Ramesh",450));
+	
+	
+	request.setAttribute("studentList", students);
+
+	//request.getRequestDispatcher("a.jsp").forward(request,response);
+	
+%>
+
+	<jsp:forward page="a.jsp"/>
+
+
+a1.jsp:-
+-----------
+
+
+<h1>Welcome to JSP</h1>
+
+
+<h2>The Data from the Request Scope :</h2>
+
+<h3>${requestScope.studentList }</h3>
+
+or 
+
+<h3>Result :  ${studentList }</h3>  // here it will first search the data with the name studentList
+			    //inside requestScope then sessionScope and then applicationScope
+			// if the data is not available inside any scope then it will not throw any exception,it will 			//simply does not print anything
+
+			
+--to utilize the EL and more simplify the jsp programming we need to use EL with the JSTL:-
+
+JSTL :-
+=====
+jsp standard tag library:-
+
+
+--JSTL is a collection of 5 tag libraries which simplyfies the jsp program with the combination of EL.
+
+
+1.core library  :- http://java.sun.com/jsp/jstl/core     prefix = "c"
+
+2.sql library :- http://java.sun.com/jsp/jstl/sql    prefix ="sql"
+
+3.xml library   :- http://java.sun.com/jsp/jstl/xml   prefix ="xml"
+
+4.formatting library  :- http://java.sun.com/jsp/jstl/fmt   prefix ="fmt"
+
+5.function library  :- http://java.sun.com/jsp/jstl/functions prefix= "fn"
+
+
+
+
+Note:- to use the JSTL in our jsp we need to place jstl.jar file inside the lib folder of our application.
+
+
+--there are 3 steps involved in using any one of the JSTL tag library:-
+
+1.place the JSTL related jar file in the classpath (inside the lib folder )
+
+2.import the tag library using taglib directive with a prefix.
+
+3.make use of EL to give the value to the attrubute of these tags.
+
+
+1.core library  :- http://java.sun.com/jsp/jstl/core     prefix = "c"
+----------------------------------------------------------------------------
+
+--it is a collection of some general purpose jsp tags, these tags are used to create and remove the scoped variables , take a decision, iterate over some list of data ,etc.
+
+
+
+ex1 :-
+
+index.jsp:-
+-----------
+
+
+<form action="a1.jsp" method="post">
+
+Enter Number 1 : <input type="text" name="num1" /> <br> <br>
+
+Enter Number 2 : <input type="text" name="num2" /> <br> <br>
+
+
+<input type="submit" value="Add">
+
+</form>
+
+
+a1.jsp:-
+----------
+
+<body>
+
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+
+<h1>Welcome to jsp</h1>
+
+
+
+<c:set var="n1"  value="${param.num1 }"/>
+
+<c:set var="n2"  value="${param.num2 }"/>
+
+
+<h1>The Result is <c:out value="${n1+n2 }" />   </h1>
+
+
+</body> 
+
+
+ex2:- using If condition:-
+-----------------------------
+
+<c:set var="n1"  value="${param.num1 }"/>
+
+<c:set var="n2"  value="${param.num2 }"/>
+
+<c:set var="result" value="${n1+n2 }"/>
+
+<c:if test="${result >= 60 }">
+
+<h1>First Division</h1>
+
+</c:if>
+
+<c:if test="${result < 60 }">
+
+<h1>2nd Division</h1>
+
+</c:if>
+
+
+
+using switch case :-
+----------------------
+
+
+
+<c:set var="n1"  value="${param.num1 }"/>
+
+<c:set var="n2"  value="${param.num2 }"/>
+
+<c:set var="result" value="${n1+n2 }"/>
+
+<c:choose> 
+
+	<c:when test="${result >=60 }">
+
+		<h1>First Div</h1>
+
+	</c:when>
+
+	<c:when test="${result >=50  && result <60}">
+
+		<h1>2nd Div</h1>
+
+	</c:when>
+
+<c:otherwise>
+
+<h1>Pass...</h1>
+
+</c:otherwise>
+
+</c:choose>
+
+
+
+using loop :-
+==========
+
+ex1:-
+
+<c:forEach var="i" begin="10" end="200" step="20">
+
+<c:out value="${i }"/>
+
+</c:forEach>
+
+
+ex2:-
+
+looping through the list of items :-
+--------------------------------------------
+
+index.jsp:-
+-------------
+
+
+<%
+
+ List<Student> students= new ArrayList<Student>();
+
+	students.add(new Student(10,"Ram",850));
+	students.add(new Student(12,"Amit",750));
+	students.add(new Student(14,"Ravi",650));
+	students.add(new Student(15,"Ramesh",450));
+	
+	
+	request.setAttribute("studentList", students);
+
+	//request.getRequestDispatcher("a.jsp").forward(request,response);
+	
+%>
+
+
+<jsp:forward page="a.jsp"/>
+
+a1.jsp:-
+-------
+
+<body bgcolor="red">
+
+
+	<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+
+	<h1>Welcome to JSP</h1>
+
+	<table align="center">
+
+		<tr>
+			<th>Roll</th>
+			<th>Name</th>
+			<th>Marks</th>
+		</tr>
+
+		<c:forEach var="st" items="${studentList }">   // getting the data from requestScope
+
+			<tr>
+				<td><c:out value="${st.roll }" /></td>
+				<td><c:out value="${st.name }" /></td>
+				<td><c:out value="${st.marks }" /></td>
+			</tr>
+
+
+		</c:forEach>
+
+	</table>
+
+
+</body>
+
+
+
+MVC design pattern:-
+================
+
+--initially in java based web-application development we used to place all the logic like Data access logic , Business Logics and Presentation Logics inside the servelt itself.
+
+
+
+browser ----------> servlet   ---------------------------> DB server 
+
+	--capture the user input 
+	--validation on input data 
+	--data processing according to the business rule 
+	--if it is required , then connect with the DB server
+	--presentation logic 
+
+
+--as a number of client request increased to the servlet , the burden on the servlet is also got increased.
+--so we used to develop application with the servlet and java bean classes with DAO pattern
+
+
+
+
+browser ---------->servlet  -------------------> SL(java class)-------------------->DAL class(DAO pattern class)
+
+	--capture the user input 	---data processing 		---communicate with the DB server
+	--validations  
+	--present the output                                   
+
+
+--when the jsp came then jsp entirly replaced the servlet, but later people realized that importance of servlet , and industry started to develop the web-application by combining both the servlet and jsp and they have given a name for this pattern called MVC pattern
+
+
+according to the MVC pattern Servlet should work as  a controller , i.e take the client request validate that request and for processing it will deligate the task to the SL component ...then SL communicate with the DAL and and SL will gives the processed data to the Servlet and Servelt keep this data to a perticular scope/memory location and forward the control to the jsp.
+
+--jsp will get the data from the scope and simply print the data.
+
+
+M  :- java bean class , with the help of DAL classes
+
+V   :- jsp (input page and output page )
+
+C  :- servlet 
+
+
+
+
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

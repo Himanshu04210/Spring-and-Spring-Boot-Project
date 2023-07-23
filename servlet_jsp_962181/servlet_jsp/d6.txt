@@ -1,0 +1,671 @@
+Spring Data JPA:-
+==============
+
+--spring boot internally uses the hibernate and it provides an abstraction layer on the top of the hibernate implmenentation, 
+
+--it provides CrudRepository(I) interface to simplyfy the data access logic by significantly reducing the amount of bolier plate code.
+
+--Spring data-jpa is not a ORM s/w , it is just part of the Spring f/w that adds an extra layer of abstraction on the top of the ORM s/w like hibernate.
+
+--we can simply change the ORM s/w from hibernate to the other ORM s/w by just configuring the pom.xml file (excluding the hibernate dependency and adding Toplink or Ibatis i.e other ORM s/w dependencies)
+
+
+	CrudRepository(I)
+	            |
+	JpaRepository(I)
+
+
+--CR is a base interface that provides all the basic CRUD operations whereas JR is child interface of CR which provides some extra feature (extra method supports) like pagination, sorting, etc.
+
+
+steps to use JPA repository in our spring boot application:-
+============================================
+
+step 1:- create a spring boot mvc application by adding following dependencies:-
+
+1.spring web
+2.spring boot data jpa
+3.devtool (optional)
+
+
+step 2:- add the mysql DB related driver jar file dependency inside pom.xml
+
+
+step 3:- add the following spring data jpa related DataSource entries (database configuration details ) inside the application.properties file. along with server port and prefix and suffix.
+
+
+
+ex:-
+
+spring.datasource.url=jdbc:mysql://localhost:3306/kumarandb
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+spring.datasource.username=root
+spring.datasource.password=root
+
+spring.jpa.show-sql=true
+
+spring.jpa.hibernate.ddl-auto=update
+
+
+step 4:- create a Entity class corresponding to the table name and use JPA related annotation to map this class with the table in mysql.(@Entity , @ID) 
+
+
+step5:- create an interface by extending JpaRepository(I) ex:-
+
+public interface StudentDao extends JpaRepository<StudentBean,Integer>{
+
+
+}
+
+--here JpaRepository is Genric type with 2 parameters :-
+
+1.Entity class 
+2.Id field type 
+
+
+
+Note:- here developer don't need to implement this interface , Spring data jpa f/w will internally implements this interface as Spring bean.(implementation class will be provided at runtime and that class will be registered with the Spring container automatically).
+
+--here need not apply any sterotype annotation but optionally we can apply @Repository annotation on the top of this interface.
+
+
+step 6:- add the tomcat -jasper  dependency to support jsp .
+
+step 7:- inject this StudentDao reference inside the Service class/Controller class , and by using this reference perform the CRUD operation.
+
+
+Note:- no need to perform any DML operation under transactional area.
+
+
+some of the important methods of JpaRepository:-
+========================================
+
+1. T save(T t) :- take an Entity class object and returns the saved object.(in the saved object autogenrated id will be there)
+
+2.public long count() :- it will returns the number of entities(record)
+
+3. Optional<T>  findById(idfield) :- this method will return the Entity object of the supplied id field in the form of java.util.Optional object.
+
+--this Optional class is introduced in java 1.8 to avoid the nullpointer exception.
+
+4.public List<T> findAll();
+
+5.public void deleteById(id);  // Entity will be deleted based on  the id
+
+6.public void delete(T t) // based on the Entity object.
+
+7.public void deleteAll();
+
+8.public T getById(idfield) ; it will return the Enitity object of the supplied id filed 
+
+
+
+ex:-
+
+homepage.jsp:-
+-----------------
+
+<body>
+
+<a href="registerEmployee">Register Employee</a>
+
+<br><br>
+
+<a href="getEmployeeById">Find Employee By Id</a>
+<br><br>
+
+<a href="testmethod">Click Here</a>
+
+
+</body>
+
+
+
+
+EmployeeController.java:-
+--------------------------------
+
+
+@Controller
+public class EmployeeController {
+
+	
+	@Autowired
+	private EmployeeDao empDao;
+	
+	
+	
+	@GetMapping("/")
+	public String homePageLauncher() {
+		return "homepage";
+	}
+	
+	
+	@GetMapping("/registerEmployee")
+	public String registerEmployeeLauncher() {
+		
+		return "registerEmployeeForm";
+		
+	}
+	
+	
+	@PostMapping("/saveEmployee")
+	public ModelAndView doSaveEmployee(Employee employee) {
+		
+		
+		Employee savedEmp= empDao.save(employee);
+		
+		return new ModelAndView("saveEmployeeSuccess", "employee", savedEmp);
+		
+	
+		
+	}
+	
+	
+	@GetMapping("/getEmployeeById")
+	public String getEmployeeByIdlauncher() {
+		
+		return "getEmployeeByIdForm";
+	}
+	
+	
+	@GetMapping("/findEmployee")
+	public ModelAndView dofindEmployee(Integer empId) {
+	
+		Optional<Employee> opt= empDao.findById(empId);
+		
+		//Employee emp= empDao.getById(empId);
+		
+		
+		//ModelAndView mv=new ModelAndView("findEmployeeSuccess");
+		
+		
+		if(opt.isPresent()) {
+			
+			Employee emp= opt.get();
+			
+			ModelAndView mv=new ModelAndView("findEmployeeSuccess");
+			
+			mv.addObject("employee", emp);
+			
+			return mv;
+			
+		}
+		else {
+			ModelAndView mv=new ModelAndView("findEmployeefailure");
+			return mv;		
+		}
+		
+		
+	
+		
+		
+	}
+	
+	
+	@RequestMapping(value = "/testmethod", method = RequestMethod.GET)
+	public String doTestMethod(Model model) {
+		
+		Employee emp=new Employee();
+		emp.setName("Manoj");
+		emp.setAddress("delhi");
+		emp.setSalary(8600);
+
+		
+		Employee savedEmp=  empDao.save(emp);
+		
+		System.out.println("Employee Saved with id "+savedEmp.getEmpId());
+		
+		model.addAttribute("employee", savedEmp);
+		
+		
+		return "success";
+		
+	}
+	
+}
+
+
+
+success.jsp:-
+---------------
+
+<body>
+
+<h1 align="center">Success Page</h1>
+
+
+<h2>Employee Saved with Id ${employee.empId }</h2>
+
+</body>
+
+
+
+findEmployeeSuccess.jsp:-
+-------------------------------
+
+<body bgcolor="yellow">
+<%-- 
+
+
+<%
+ Object obj=request.getAttribute("employee");
+	if(obj != null){
+		
+		Employee emp= (Employee)obj;
+%>
+
+
+
+<h2>Employee Id : <%=emp.getEmpId() %></h2>
+<h2>Employee Name : <%=emp.getName() %></h2>
+<h2>Employee Address : <%=emp.getAddress() %></h2>
+<h2>Employee Salary : <%=emp.getSalary() %></h2>
+
+
+
+
+<%} else{%>
+
+
+<h2>Record does not exist..</h2>
+
+<%} %>
+
+
+ --%>
+
+
+<h2>Employee Id : ${employee.empId }</h2>
+<h2>Employee Name :${employee.name }</h2>
+<h2>Employee Address : ${employee.address }</h2>
+<h2>Employee Salary : ${employee.salary }</h2>
+
+
+
+</body>
+</html>
+
+
+
+findEmployeefailure.jsp:-
+----------------------------
+
+<body>
+
+<h1>Record does not exist</h1>
+
+</body>
+
+
+
+getEmployeeByIdForm.jsp:-
+-------------------------------
+
+<body>
+
+<h1>Get Employee By Id Screen</h1>
+
+<hr>
+
+
+
+<form action="findEmployee" method="get">
+
+Enter Emoloyee Id :<input type="text" name="empId" />
+
+<input type="submit" value="Find">
+
+</form>
+
+
+
+</body>
+
+registerEmployeeForm.jsp:-
+--------------------------------
+
+<body bgcolor="wheat">
+
+<h1 align="center">Employee Registration Screen</h1>
+
+
+<form action="saveEmployee" method="post">
+
+Enter Employee Name :<input type="text" name="name" /> <br><br>
+Enter Employee Address :<input type="text" name="address" /> <br><br>
+Enter Employee Salary :<input type="text" name="salary" /> <br><br>
+
+
+<input type="submit" value="Register">
+
+
+</form>
+
+</body>
+
+
+
+EmployeeDao.java:-
+----------------------
+
+
+public interface EmployeeDao extends JpaRepository<Employee,Integer>{
+
+}
+
+
+
+implementing updat method:-
+=======================
+
+--there is no any update method inside the JpaRepository , in order to update a record , first we need to get the Entity object which we want to update by its id, and then update  its state and after that just persist that object by calling save(-) method again, 
+
+
+Note:-save(-) method of spring data jpa performs internally as saveOrUpdate() method.(if inside the Entity object already existing Id is not there then it will perform insert operation , and it id is already exist then it will perform update() method)
+
+Note:- in spring mvc , for updating a method we should use http method as "Post" where as in spring Rest api (restfull webservices we should use http method for updating as "PUT " or "MERGE" method).
+
+
+
+ex:-
+
+
+		public String doTestMethod() {
+		
+		//get the object which we want to update
+		Optional<Employee> opt= empDao.findById(4);
+		
+		
+		if(opt.isPresent()) {
+			
+			
+			Employee emp= opt.get();
+			
+			//update the object state.
+			emp.setSalary(emp.getSalary()+500);
+			
+			//save this updated object back
+			//it will perform update operation.
+			empDao.save(emp);
+			
+			
+			
+		}else
+			System.out.println("Record not found");
+		
+		
+	
+Defining our own method inside the JpaRepository extended interface i.e EmployeeDao interface:-
+===========================================================================
+
+
+--in this interface , if we define any custom methods by following some conventions then spring data jpa f/w will provide its implementation automatically.
+
+syntax :- findBy...
+
+ex:-
+
+--if our search condition is on PrimaryKey then it will return only one Entity object.
+
+--whereas if search cond is on non-PK then it will return the List of object.
+
+Note;- eventthough our search condition is on non-PK and if it returns only one object in this case also we can take return type as single Entity object. 
+
+ex1:-
+
+List<Employee> findByName(String name) ;// since name is a non-pk then the return type would be List
+
+ex2:-
+
+Employee  findByEmpId(int empId);// here search condition is on PK hence the return type would be single Entity class object
+
+
+ex3:-
+
+Employee findBySalary(int sal) ; //if with supplied salary only one record is there in the table, we can take the return type as Single Entity class object. but if with supplied salary ,more than one record will come then this single return type will cause a runtime exception called "NonUniqueResultException:".
+
+
+EmployeeDao.java:-
+------------------------
+
+
+public interface EmployeeDao extends JpaRepository<Employee,Integer>{
+
+	public List<Employee> findBySalary(int sal);
+		
+}
+
+
+EmployeeController.java:-
+-------------------------------
+
+		List<Employee> emps= empDao.findBySalary(5550);
+		
+		emps.forEach(emp -> System.out.println(emp));
+		
+
+
+
+find by multiple fileds:-
+-----------------------------
+
+1.
+public List<Employee>  findByAddressAndSalary(String address,Integer salary); //AND operator
+
+ex:-
+
+empDao.findByAddressAndSalary("Delhi",8500); // it will fetch all the employee whose address is Delhi and salary is 8500
+
+2.
+
+public List<Employee>  findByAddressOrSalary(String address,Integer salary); // OR operator
+
+ex:-
+
+empDao.findByAddressOrSalary("Delhi",8500); // it will fetch all the employee whose address is Delhi or salary is 8500  
+
+3.
+
+public List<Employee>  findByAddressAndSalaryAndName(String address,Integer salary,String name); //AND operator
+
+4.
+
+public List<Employee>  findByAddressIgnoreCaseAndSalary(String address,Integer salary); //AND operator
+
+ex:-
+
+empDao.findByAddressIgnoreCaseAndSalary("delhi",8500);
+
+
+limiting the Result:-
+------------------------
+
+public List<Employee> findTop5ByName(String name)
+
+public Employee findTopByName(String name);
+
+
+
+using order by :-
+--------------------
+
+List<Employee> findTop5ByOrderByNameDesc();
+
+List<Employee> findTop5ByOrderByNameAsc();
+
+
+
+some more complex queries :-
+------------------------------------
+
+List<Employee>  findBySalaryLessThan(int salary);
+
+List<Employee>  findBySalaryLessThanEqual(int salary);
+
+
+List<Employee>  findBySalaryGreaterThan(int salary);
+
+List<Employee>  findBySalaryBetween(int start_sal,int endSal);
+
+
+
+Note:- even if we need some more complex queries then we can apply HQL/JPQL by using @Query annotation on the top of our custom method
+
+
+ex:-
+
+sql :- we express the query in the term of tables and columns .
+
+hql/jpql :- we express the query in the term of Entity  class and their variables
+
+
+ex:-
+
+	//@Query("select e from Employee e")
+	@Query("from Employee")
+	public List<Employee> getAllEmployee();
+ 
+
+ex:-
+
+--here one column and search condition is in PK.
+
+	@Query("select name from Employee where empId=4")
+	public String getNameByEmployeeId4();
+
+
+
+ex2:-
+
+--here one column and search condition is on non-PK.
+
+	@Query("select name from Employee where address='delhi'")
+	public List<String> getNameByEmployeeAddressDelhi();
+	
+
+
+supplying the dynamic data to the hql :-
+-----------------------------------------------
+
+--here we can use positional parameter or named parameters also.
+
+ex:- positional parameter :-
+
+	@Query("select name from Employee where address=?1")
+	public List<String> getNameByEmployeeAddress(String address);
+
+ex:- named parameter:-
+
+
+	@Query("select name from Employee where address=:addr")
+	public List<String> getNameByEmployeeAddress(String addr);
+
+
+ex2:-
+
+	@Query("select name from Employee where address=:addr OR salary > :sal")
+	public List<String> getNameByEmployeeAddress(String addr,Integer sal);
+
+
+
+Note:-
+
+case 1:- if we select all the field then the return type will be either List<Entity class> or single Entity class object
+
+case 2:- if we select only one field the the return type will be either List<String> or List<wrapper class object> or List<Date>  or single String, wrapper object or Date object.
+
+
+case 3:- if we select few columns then the return will be  for single row it will be String(all filed will be seperated with comma(,)) and for multiple row it will be List<String> (list of comma seperated string)
+
+
+ex:-for one record (search condition is on PK)
+
+
+	@Query("select name,address from Employee where empId=:eid" )
+	public String getNameAddressByEmployeeId(Integer eid);
+
+in Controller class:-
+
+	String name= empDao.getNameAddressByEmployeeId(4);
+			
+	System.out.println(name);
+
+output will be :- Ram,chennai
+
+
+ex2:-for multiple record (search condition is on non-PK)
+ 
+	@Query("select name,address from Employee where salary >:sal" )
+	public List<String> getNameAddressByEmployeeId(Integer sal);
+
+in Controller class:-
+
+	List<String> results= empDao.getNameAddressByEmployeeId(5000);
+			
+	results.forEach(result -> System.out.println(result));
+	
+		
+Note:- incase of selecting few columns we can make use of helper class also. in this class we need to define same number of fileds those many fields we want to fetch.
+
+
+
+ex:-
+
+EmployeeHelper.java:-
+---------------------------
+
+
+package com.ratan.bean;
+
+public class EmployeeHelper {
+	
+	private String name;
+	private Integer salary;
+
+//zero arg-constructor
+//parameterized constructor :- mandatory
+//getter and setters
+//toStringmethod
+
+}
+
+
+EmployeeDao.java:-
+------------------------
+
+
+	@Query("select new com.ratan.bean.EmployeeHelper(name,salary) from Employee where salary >:sal" )
+	public List<EmployeeHelper> getNameAddressByEmployeeId(Integer sal);
+
+
+in Controller class:-
+------------------------
+
+	List<EmployeeHelper> emps= empDao.getNameAddressByEmployeeId(5000);
+		
+	emps.forEach(emp -> System.out.println(emp));
+		
+		
+
+@NativeQuery:-
+--------------------
+
+--by this we can frame the native query (traditional sql query )
+
+
+ex:-
+
+	@Query(value = "select name,salary from employee where salary >:sal", nativeQuery = true)
+	public List<String> getEmployeeNameSalary(int sal);
+
+in Controller class:-
+-------------------------
+
+		List<String> results= empDao.getEmployeeNameSalary(5000);
+		
+		results.forEach(result -> System.out.println(result));
+		
+		
+
+

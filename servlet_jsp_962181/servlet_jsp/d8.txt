@@ -1,0 +1,578 @@
+handling typemismatch error:-
+-------------------------------------
+
+--if user will type any string value inside the number text box , then the internall exception message will be printed on the browser..
+
+--in order to display the user friendly error message or to solve the above problem we have 2 options :-
+
+approach 1:-  create messages.properties file inside src/main/resources folder , and place the following key-value pair.
+
+ex:-
+
+typeMismatch.roll=Only numbers are allowed
+
+
+approach 2:- Enter Roll :<f:input path="roll" type="number" /> 
+
+
+handling the Date (LocalDate):-
+--------------------------------------
+
+approach 1:-
+---------------
+
+Student.java:- in formbacking class:-
+
+
+@Past(message = "Date should in the Past")
+@DateTimeFormat(pattern = "dd/MM/yyyy")
+private LocalDate dateOfBirth;
+
+getter and setters
+
+
+in side the form page:-
+
+
+Enter DateOfBirth : <f:input path="dateOfBirth" placeholder="dd/MM/yyyy"/> <f:errors path="dateOfBirth" class="er"/>
+<br><br>
+
+approach 2:-
+---------------
+
+Student.java:- in formbacking class:-
+
+
+@Past(message = "Date should in the Past")
+@DateTimeFormat(iso = ISO.DATE)
+private LocalDate dateOfBirth;
+
+getter and setters
+
+
+in the form page:-
+
+Enter DateOfBirth : <f:input path="dateOfBirth" type="date"/> <f:errors path="dateOfBirth" class="er"/>
+<br><br>
+
+
+generating dynamic drop down list:-
+============================
+
+step 1:- 
+
+--take a variable in the Student class 
+
+//to hold the value of selected city
+private String city;
+
+
+step2:-
+
+define a method inside the controller class which will return List of String , and annotate this 
+method with @ModelAttribute with a name.
+
+--here we are using @ModelAttribute as a method level, so the returned list will be added inside 
+the request scope as model attribute.
+
+ex:-
+
+
+	@ModelAttribute("cities")
+	public List<String> genenrateCityList() {
+		
+		List<String> list=new ArrayList<String>();
+		
+		list.add("Delhi");
+		list.add("Chennai");
+		list.add("Coimbatoor");
+		list.add("Banglore");
+		
+		return list;	
+	}
+
+
+or 
+
+	@ModelAttribute("cities")
+	public Map<String, String> genenrateCityList() {
+		
+		Map<String, String> map=new HashMap<String, String>();
+		
+		map.put("", "Select a City");
+		map.put("delhi", "Delhi");
+		map.put("chennai", "Chennai");
+		map.put("coimbatoor", "Coimbatoor");
+		map.put("banglore", "Banglore");
+			
+		return map;
+	
+	}
+
+
+
+
+	
+
+Note:- this method will be called automatically before any request handler method call.
+
+
+step 3:- 
+
+--use the following tag inside the form page to display these list in drop-down list.
+
+
+<f:select path="city" items="${cities }"/>
+
+
+
+getting the city list from the Database:-
+--------------------------------------------
+
+	@Autowired
+	private AddressDao addressDao;
+	
+
+	@ModelAttribute("cities")
+	public Map<String, String> genenrateCityList() {
+		
+		
+		List<String> cities= addressDao.getCities();
+			
+		Map<String, String> map=new HashMap<String, String>();
+		
+		map.put("", "Select a City");
+		
+		for(String city:cities) {
+			
+			map.put(city,city.toUpperCase());
+				
+		}
+	
+		return map;	
+	}
+
+
+Address.java:- (Entity class):-
+----------------
+
+@Entity
+@Table(name = "address")
+public class Address {
+	
+	@Id
+	private Integer id;
+	private String city;
+	private String pincode;
+	
+
+}
+
+
+AddressDao.java(I):-
+-----------------------
+
+
+public interface AddressDao extends JpaRepository<Address, Integer>{
+
+	@Query("select city from Address")
+	public List<String> getCities();
+	
+	
+}
+
+
+
+generating dynamic checkbox:-
+--------------------------------------
+
+step1:- 
+
+--take a array type variable to hold the selected values ex:-
+
+@NotEmpty(message = "Select atleast one course")
+private String[] courses;
+
+or
+
+@NotEmpty(message = "Select atleast one course")
+private String courses; // here multiple selected values will come as comma(,) seperated value
+
+
+step 2:- 
+
+in side the controller class define a method which will return a Map or a List of String as previous example, and we need to annotate this method with @ModelAttribute annotation with a name.
+
+ex:-
+
+	@ModelAttribute("courseList")
+	public Map<String, String> generateCourses(){
+		
+		Map<String, String> map=new HashMap<String, String>();
+		
+		
+		map.put("Java", "JAVA");
+		map.put("Spring", "SPRING");
+		map.put("Hibernate", "HIBERNATE");
+		map.put("Webservice", "WEBSERVICE");
+		
+		return map;
+	}
+	
+
+step 3:-
+
+--use the following tag inside the form page to display dynamic checkbox:-
+
+<f:checkboxes items="${courseList }" path="courses"/>
+
+
+for radio buttons also simmlar approach:-
+--------------------------------------------------
+
+in Student.java:-
+--------------------
+
+
+private String mobileServiceProvider;
+	
+
+
+inside the Controller class:-
+
+
+	
+	@ModelAttribute("mobileList")
+	public Map<String, String> generateMobileServiceProviders(){
+		
+		Map<String, String> map=new HashMap<String, String>();
+		
+		
+		map.put("Jio", "JIO");
+		map.put("Airtel", "AIRTEL");
+		map.put("Bsnl", "BSNL");
+		map.put("Vi", "VI");
+		
+		return map;
+	}
+
+
+inside the form page:-
+
+
+Select Mobile Service provider :
+
+<f:radiobuttons path="mobileServiceProvider" items="${mobileList }"/>
+
+<br><br>
+
+
+
+i18n (Internationalization in SpringBoot mvc):-
+====================================
+
+--i18n is the process of desiging a s/w application so that it can be adapted to various language and regions without changing its code.
+
+
+--using i18n , user prefered language is set for the views of the web-application.
+
+--by using i18n we render labels  of the webpage in various languages.
+
+--it improves number of customers/visitors to the application.
+
+
+--while working with 118n ,we need to deal with multiple resource bundle files (messages.properties) files for each language, including a base file.
+
+--the properties files names must follows one of the following 2 naming rules:-
+
+1.messages_languageCode_countryCode.properties
+
+2.messages_languageCode.properties
+
+ex:-
+
+messages.properties (base file)
+
+messages_hi_IN.properties (for Hindi locale) or messages_hi.properties
+
+messages_fr_CA.properties (for french locale specific)
+
+messages_tm_IN.properties   or messages_tm.properties (for tamil language)
+
+
+
+Note:- in each file the key will be same but the value will be changed based on the selected Locale.
+
+
+
+Locale :- a locale is a geographic or political region that shares some language and other information.
+
+--it can be either a language code or can be combination of language code + country code or can be combination of some other information.
+
+
+Note:- i18n always deals with presentation part of the application , it is no way related with business logic or Data access logic, 
+
+
+--when a request is sent to change the language then at server side , a specific resource bundle file of the selected language will be loaded ,and the value of the key will be taken and the output will be sent to the browser for that langauage.
+
+--to enable i18n on spring web-mvc application we need to register "LocaleResolver(I)" and "LocaleChangeInterceptor" bean with the Spring boot mvc application.
+
+--LocaleChnageInterceptor allows to change the locale for every request based on the additional request parameter, 
+
+--it reads the additional request parameter , creates the java.util.Locale object and then adds that Locale object to the session.
+
+ex:-
+
+
+LocaleChnageInterceptor  lci=new LocaleChnageInterceptor();
+
+lci.setParamName("lang"); // this is the additional parameter by using which we specify the language to be selected
+
+
+
+--SessionLocaleResolver is implementation class of LocaleResolver interface , that reads the Locale obj from the session and pick the specific resource bundle file and resolve the language specific labels.
+
+--if it is not able to reads the Local object from the session , then it will choose a "default locale configured " or http request header "accept-language" value.
+
+
+SessionLocaleResolver slr=new SessionLocaleResolver();
+
+slr.setDefaultLocale(Locale.US); //US is the default locale for our system
+
+
+
+Note:- we need to configure both classes as spring bean with our spring container.
+
+
+steps to implement i18n in spring boot mvc application:-
+============================================
+
+
+step 1:- 
+
+register LocaleChangeInterceptor and SessionLocaleResolver classes as spring bean with the spring container.
+
+--either we can take a seperate SpringConfig class and annotate with @Configuration or inside the main class also.
+
+SpringConfig.java:-
+-------------------
+
+package com.ratan;
+
+import java.util.Locale;
+
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+
+@Configuration
+public class SpringConfig {
+
+	
+	// for i18n 	
+	@Bean
+	public LocaleChangeInterceptor getLCI() {
+		
+		LocaleChangeInterceptor lci=new LocaleChangeInterceptor();
+		
+		lci.setParamName("lang");
+		
+		return lci;
+		
+	}
+	
+	// for i18n	
+	@Bean("localeReolver")  // this id is mandatory 
+	public LocaleResolver getLR() {
+		
+		SessionLocaleResolver slr=new SessionLocaleResolver();
+		
+		slr.setDefaultLocale(Locale.US);
+		
+		return slr;
+		
+	}
+	
+}
+
+
+step 2:-
+
+register the LocaleChangeInterceptor object with the InterceptorRegistry
+
+
+--for that we need to implement "WebMvcConfigurer(I)" interface inside the above SpringConfig class(Spring configuration class). and override its one method:-
+
+public void addInterceptors(InterceptorRegistry reg);
+
+ex:-
+
+
+SpringConfig.java:-
+----------------------
+
+
+
+@Configuration
+public class SpringConfig implements WebMvcConfigurer {
+
+	
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+	
+		registry.addInterceptor(getLCI());
+		
+	}
+	
+	
+	
+	@Bean
+	public LocaleChangeInterceptor getLCI() {
+		
+		LocaleChangeInterceptor lci=new LocaleChangeInterceptor();
+		
+		lci.setParamName("lang");
+		
+		return lci;
+		
+	}
+	
+	
+	@Bean("localeResolver")  // this id is mandatory 
+	public LocaleResolver getLR() {
+		
+		SessionLocaleResolver slr=new SessionLocaleResolver();
+		
+		slr.setDefaultLocale(Locale.US);
+		
+		return slr;
+		
+	}
+	
+	
+}
+
+Note:- in spring-mvc interceptors are like a servlet filter , which will intercept each request of a request handler method.
+
+
+step 3:-
+---------
+
+create multiple resource bundle files (messages.properties) files for each Locale with one base file 
+
+ex:-
+
+messages.properties (base file):-
+--------------------------------------
+
+
+label.heading=Welcome to my page(base)
+
+label.roll=Enter Roll Numner(base) 
+label.name=Enter Name(base) 
+label.address=Enter Address(base) 
+
+
+mesages_tm.properties:-
+------------------------------
+
+label.heading=Welcome to my page(tamil)
+
+label.roll=Enter Roll Numner(tamil) 
+label.name=Enter Name(tamil) 
+label.address=Enter Address(tamil) 
+
+
+step 4:- 
+
+--inside the form page display all the labels using spring supplied tags 
+
+--here we need to import the spring tag by using taglib directive
+
+ex:-
+
+
+<%@taglib prefix="s" uri="http://www.springframework.org/tags"  %>
+
+
+ex:-
+
+studentRegistrationForm.jsp:-
+------------------------------------
+
+<body>
+<%@taglib prefix="f" uri="http://www.springframework.org/tags/form" %>
+
+<%@taglib prefix="s" uri="http://www.springframework.org/tags"  %>
+
+
+
+<h1 align="center"> <s:message code="label.heading"/> </h1>
+
+<hr/>
+
+<f:form action="registerStudent" method="post" modelAttribute="studentData">
+
+<s:message code="label.roll"/>  :<f:input path="roll" type="number" /> <f:errors path="roll" class="er" />
+<br><br>
+
+<s:message code="label.name"/> :<f:input path="name" /> <f:errors path="name" class="er"/>
+<br><br>
+
+<s:message code="label.address"/> :<f:input path="address" /> <f:errors path="address" class="er"/>
+<br><br>
+
+
+<input type="submit" value="Register">
+
+</f:form>
+
+
+step 5:- generate the request to the form page by adding one additional request parameter "lang" with the specific language code.
+
+ex:-
+
+http://localhost:7000/?lang=fr   :- for french specific
+
+http://localhost:7000/?lang=tm  :- for tamil specific
+
+http://localhost:7000/   :- for default
+
+http://localhost:7000/hello?lang=fr   :- for french specific
+
+
+
+--for specific language related font we need to paste the uni code from google translator:-
+
+--to support the specific forn in  jsp page, we need to specify the  
+charset=UTF-16"
+pageEncoding="UTF-16"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
