@@ -50,17 +50,6 @@ public class StudentServiceImpl implements StudentService{
 	public Student getStudentByRoll(Integer roll) throws StudentException {
 		
 		Optional<Student> opt= studentRepository.findById(roll);
-//		
-//		if(opt.isPresent()) {
-//			
-//			Student student= opt.get();
-//			
-//			return student;
-//		}else
-//			throw new StudentException("Student does not exist with roll number :"+roll);
-//		
-		
-		
 		return opt.orElseThrow(() -> new StudentException("Student does not exist with roll "+roll));
 		
 		
@@ -71,33 +60,11 @@ public class StudentServiceImpl implements StudentService{
 
 	@Override
 	public Student deleteStudentbyRoll(Integer roll) throws StudentException {
-		
-//		Optional<Student> opt= studentRepository.findById(roll);
-//			
-//		if(opt.isPresent()) {
-//			
-//			Student existingStudent= opt.get();
-//			
-//			studentRepository.delete(existingStudent);
-//			
-//			return existingStudent;
-//			
-//			
-//			
-//		}else
-//			throw new StudentException("Student does not exist with roll :"+roll);
-		
-
 		Student existingStudent= studentRepository.findById(roll).orElseThrow(() -> new StudentException("Student does not exist with roll :"+roll));
 		
 			studentRepository.delete(existingStudent);
 		
 				return existingStudent;
-		
-		
-		
-		
-		
 	}
 
 
@@ -117,10 +84,6 @@ public class StudentServiceImpl implements StudentService{
 			existingStudent.setMarks(student.getMarks());
 			
 			studentRepository.save(existingStudent);
-			
-			//save method will perform as saveOrUpdate based on Id field.
-			//if the supplied object id is already available then it will merge the record. otherwise it will insert a new record.
-			
 			return student;
 			
 		}else
@@ -146,8 +109,6 @@ public class StudentServiceImpl implements StudentService{
 			return studentRepository.save(exitingStudent);
 			
 			
-			
-			
 		}else
 			throw new StudentException("Student does not exist with roll: "+roll);
 		
@@ -166,16 +127,12 @@ public class StudentServiceImpl implements StudentService{
 			throw new StudentException("Student does not exist with name: "+name);
 		else 
 			return students;
-		
-		
 	}
 
 
 
 	@Override
 	public List<StudentDTO> getStudentNameAndMarks() throws StudentException {
-		
-		
 		List<StudentDTO> dtos= studentRepository.getStudentNameAndMarks();
 		
 		if(dtos.isEmpty())
